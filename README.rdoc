@@ -1,0 +1,31 @@
+= ad_dir
+
+* {Homepage}[https://rubygems.org/gems/ad_dir]
+* {Documentation}[http://rubydoc.info/gems/ad_dir/frames]
+* {Email}[mailto:andi.bachmann at geo.uzh.ch]
+
+== Description
+
+TODO: Description
+
+== Features
+
+== Examples
+
+  require 'ad_dir'
+
+== Requirements
+
+== Install
+
+  $ gem install ad_dir
+
+== Synopsis
+
+  $ ad_dir
+
+== Copyright
+
+Copyright (c) 2012 Andi Bachmann
+
+See LICENSE.txt for details.
