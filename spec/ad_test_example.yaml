@@ -1,0 +1,17 @@
+#
+# This is an example for your AD connection.
+# 
+# Copy this file to `ad_test.yaml` and replace the values with
+# your real stuff.
+# Don't add the file to your git! Keep it for yourself only.
+# 
+---
+:host       : AD_Hpst
+:port       : 636,
+:encryption : :simple_tls
+:base       : dc=your,dc=org,dc=net
+:auth :
+  :method   : :simple
+  :username : cn=chef,dc=your,dc=org,dc=net
+  :password : <password>
+

@@ -10,6 +10,8 @@ TODO: Description
 
 == Features
 
+ad_dir allows to query and manage entries of the AD directory
+
 == Examples
 
   require 'ad_dir'
@@ -29,3 +31,4 @@ TODO: Description
 Copyright (c) 2012 Andi Bachmann
 
 See LICENSE.txt for details.
+
