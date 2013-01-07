@@ -21,9 +21,7 @@ require 'ad_dir/version'
 module AdDir
   class << self
     attr_accessor :connection
-
   end
-
 end
 
 require 'ad_dir/entry'
