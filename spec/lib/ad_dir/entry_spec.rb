@@ -11,7 +11,7 @@ describe AdDir::Entry do
   it "@base_dn should return" do
     e = AdDir::Entry.new("dn=bachmann")
     puts e.base_dn
-    puts e.attributes.keys.join(". ")
+    # puts e.attribute_names
   end
 
   it "#search should work like a charm" do
@@ -19,7 +19,7 @@ describe AdDir::Entry do
     e = AdDir::Entry.search({:filter => filter, 
         :base => "ou=people,dc=d,dc=geo,dc=uzh,dc=ch"})
     puts e.first[:memberof].class
-    puts e.first.samaccountname.inspect
+    #puts e.first.samaccountname.inspect
     # puts e.inspect
   end
 
@@ -41,11 +41,27 @@ describe AdDir::Entry do
       AdDir::Entry.find_by_noop('crash').should be_nil
     end
 
-    it ".some_really_strange_method() should return a NoMethodError" do
-      lambda { AdDir::Entry.some_really_strange_method() }.
-        should raise_error(NoMethodError)
+    it ".some_strange_method() should return a NoMethodError" do
+      expect { described_class.some_strange_method() }.
+        to raise_error(NoMethodError)
     end      
+  end
 
+  describe "modifying an entry" do
+    # 
+    let(:testuser) { AdDir::Entry.find('testuser') }
+
+    
+    it "entry[:key] = new_val modifies the value of attribute ':key'" do
+      old_val      = testuser[:sn].first
+      new_val      = "other value"
+
+      testuser[:sn] = new_val
+      AdDir::Entry.find('testuser')[:sn].first.should == new_val
+
+      testuser[:sn] = old_val
+      AdDir::Entry.find('testuser')[:sn].first.should == old_val
+    end
   end
 
 end

@@ -2,6 +2,8 @@
 #
 module AdDir
 
+  class AdError < StandardError; end
+
   class Entry
     #
     FIND_METHOD_REGEXP = /find(_(all|first|last))?(_by_(\w*))?/
@@ -122,12 +124,6 @@ module AdDir
       #
     end
 
-    # 
-    def [](name)
-      val = @attributes[normalize_name(name)]
-      val && val.first
-    end
-    
     def dn
       @dn.downcase
     end
@@ -139,12 +135,58 @@ module AdDir
     def base_dn
       @base_dn || connection.base
     end
+
+    # 
+    def [](name)
+      @attributes[normalize_name(name)]
+    end
+    #
+    def []=(name,value)
+      key              = normalize_name(name)
+
+      # update the attributes hash
+      if modify( { key => value } )
+        value = [value] unless value.kind_of?(Array)
+        @attributes[key] = value
+      end
+    end
+    
+    # Returns the attributes keys
+    def attribute_names
+      @attributes.keys
+    end
+
+    # Modify attributes given as hash
+    #
+    # Example:
+    #   entry.modify({ :sn => "John Doe", :mail => "john.doe@foo.bar.com" })
+    # 
+    def modify(attr_hash)
+      ops     = attr_hash.map { |key,new_val|  [:replace, key, new_val] }
+      success = connection.modify(:dn => dn, :operations => ops )
+      #
+      unless success
+        raise_ad_error connection.get_operation_result
+      end
+      
+      return success 
+    end
+    
     
     private
     def normalize_name(name)
       # Turn all characters of an attribute name into lower case characters.
       # 
       name.to_s.downcase.to_sym
+    end
+
+    def raise_ad_error(error)
+      exception = AdError.new(
+        "LDAP operation on AD failed: #{error.message} (code: #{error.code})")
+      exception.set_backtrace(
+        caller[0..-2])
+      
+      raise exception
     end
 
     # ----------------------------------------------------------------------
@@ -155,7 +197,7 @@ module AdDir
       # 
       # Get all attribute names and normalize (i.e. downcase) them.
       names = ldap_entry.attribute_names.map { |name|
-        normalize_name(name) 
+        normalize_name(name)
       }
       # Remove the :dn attribute. The :dn attribute is a top level attribute
       # by itself, while all other attributes are stored in the hash 
