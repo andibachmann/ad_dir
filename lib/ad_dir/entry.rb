@@ -158,8 +158,10 @@ module AdDir
 
     # Modify attributes given as hash
     #
-    # Example:
-    #   entry.modify({ :sn => "John Doe", :mail => "john.doe@foo.bar.com" })
+    # Example: Modify the ++:sn++ and ++:mail++ attributes.
+    #
+    #   entry.modify({ :sn => "John Doe", 
+    #                  :mail => "john.doe@foo.bar.com" })
     # 
     def modify(attr_hash)
       ops     = attr_hash.map { |key,new_val|  [:replace, key, new_val] }
