@@ -4,23 +4,15 @@ require 'ad_dir'
 
 describe AdDir::Entry do
 
-  it "#connection should return the connection" do
-    AdDir::Entry.connection.should be_true
+  it "#connection should return a Net::LDAP connection" do
+    AdDir::Entry.connection.should be_kind_of(Net::LDAP)
   end
 
-  it "@base_dn should return" do
-    e = AdDir::Entry.new("dn=bachmann")
-    puts e.base_dn
-    # puts e.attribute_names
-  end
-
-  it "#search should work like a charm" do
+  it "#search is a wrapper for Net::LDAP.search()" do
     filter = Net::LDAP::Filter.eq("sAMAccountName", "bachmann")
-    e = AdDir::Entry.search({:filter => filter, 
-        :base => "ou=people,dc=d,dc=geo,dc=uzh,dc=ch"})
-    puts e.first[:memberof].class
-    #puts e.first.samaccountname.inspect
-    # puts e.inspect
+    AdDir::Entry.search({:filter => filter, 
+        :base => "ou=people,dc=d,dc=geo,dc=uzh,dc=ch"}).size.should > 0
+    
   end
 
   describe "#find_by_xxx method" do
@@ -29,11 +21,11 @@ describe AdDir::Entry do
       AdDir::Entry.find_by_id('bachmann').dn.should =~ /bachmann/
     end
 
-    it "find_by_email('andi.bachmann@geo.uzh.ch')" do 
+    it "find_by_mail('andi.bachmann@geo.uzh.ch')" do 
       AdDir::Entry.find_by_mail('andi.bachmann@geo.uzh.ch').dn.should =~ /bachmann/
     end
 
-    it "find_by_email('*bachmann@geo.uzh.ch')" do 
+    it "find_by_mail('*bachmann@geo.uzh.ch')" do 
       AdDir::Entry.find_by_mail('*bachmann@geo.uzh.ch').dn.should =~ /bachmann/
     end
 

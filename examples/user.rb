@@ -32,12 +32,12 @@ class User < AdDir::Entry
   # Add a group
   # 
   def add_group(group)
-    group.add_user(self) if group.users.include?(self)
+    group.add_user(self) unless group_names.include?(group.name)
   end
 
-  # Delete a group
+  # Remove a group
   #
-  def delete_group(group)
-    
+  def remove_group(group)
+    group.remove_user(self) if group_names.include?(group.name)
   end
 end
