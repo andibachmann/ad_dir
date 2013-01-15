@@ -5,8 +5,8 @@ require File.expand_path('../lib/ad_dir/version', __FILE__)
 Gem::Specification.new do |gem|
   gem.name          = "ad_dir"
   gem.version       = AdDir::VERSION
-  gem.summary       = %q{TODO: Summary}
-  gem.description   = %q{TODO: Description}
+  gem.summary       = %q{net-ldap wrapper for GIUZ ActiveDirectory}
+  gem.description   = %q{Base on net-ldap this gem allows you to build a simple User/Group abstraction of our ActiveDirectory}
   gem.license       = "MIT"
   gem.authors       = ["Andi Bachmann"]
   gem.email         = "andi.bachmann@geo.uzh.ch"
