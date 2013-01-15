@@ -34,3 +34,4 @@ RSpec::Core::RakeTask.new
 
 task :test    => :spec
 task :default => :spec
+
