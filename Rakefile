@@ -21,7 +21,7 @@ end
 require 'rake'
 
 require 'rubygems/tasks'
-Gem::Tasks.new
+Gem::Tasks.new()
 
 require 'rdoc/task'
 RDoc::Task.new do |rdoc|
@@ -35,3 +35,36 @@ RSpec::Core::RakeTask.new
 task :test    => :spec
 task :default => :spec
 
+desc "Publish gem to the GIUZ gemserver"
+task :pushgiuz do
+  project = Gem::Tasks::Project.new
+  repo_dir = "/web/gems/gems/"
+  if File.exist?(repo_dir)
+    cp File.join(project.class::PKG_DIR, project.gemspec.file_name), repo_dir
+  else
+    warn "ERROR: Can't reach #{repo_dir}!"
+    warn "  Log in to a machine that mounts #{repo_dir} and do:"
+    warn "cp #{File.join(project.class::PKG_DIR, project.gemspec.file_name)} #{repo_dir}"
+    exit 1
+  end
+  # 
+  if `uname -s` == "SunOS"
+    sh "cd #{repo_dir} && rake"
+  else
+    warn "ERROR: Could not rebuild the gem repo index!"
+    warn "  Try on a SunOS machine:"
+    warn "cd #{repo_dir} && rake"
+    exit 2
+  end
+end
+
+
+desc "rebuild without SCM-checks"
+task :rebuild do
+  # get the project for this gem
+  project = Gem::Tasks::Project.new
+  # build the gem with the standard 'gem build' command
+  # and move the result to the PKG_DIR
+  builder = Gem::Builder.new(project.gemspec)
+  mv builder.build, project.class::PKG_DIR
+end
