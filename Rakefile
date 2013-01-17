@@ -49,11 +49,11 @@ task :pushgiuz do
   end
   # 
   if `uname -s` == "SunOS"
-    sh "cd #{repo_dir} && rake"
+    sh "cd /web/gems && rake"
   else
     warn "ERROR: Could not rebuild the gem repo index!"
     warn "  Try on a SunOS machine:"
-    warn "cd #{repo_dir} && rake"
+    warn "cd /web/gems && rake"
     exit 2
   end
 end
