@@ -3,6 +3,7 @@
 module AdDir
 
   class AdError < StandardError; end
+  class AdAuthenticationError < StandardError; end
 
   class Entry
     #
@@ -13,7 +14,11 @@ module AdDir
     #
     class << self
       def connection
-        AdDir.connection
+        if AdDir.connection.bind
+          AdDir.connection
+        else
+          raise AdAuthenticationError
+        end
       end
       
       #
