@@ -3,7 +3,6 @@
 module AdDir
 
   class AdError < StandardError; end
-  class AdAuthenticationError < StandardError; end
 
   class Entry
     #
@@ -14,20 +13,20 @@ module AdDir
     #
     class << self
       def connection
-        if AdDir.connection.bind
-          AdDir.connection
-        else
-          raise AdAuthenticationError
-        end
+        AdDir.connection
       end
       
       #
       def search(args={})
         args[:base]          ||= base_dn
         args[:scope]         ||= Net::LDAP::SearchScope_WholeSubtree
-        #args[:return_result] ||= true
-        # STDERR.puts "AdDir::Entry#search: #{args.inspect}"
-        connection.search(args)
+
+        success = connection.search(args)
+        unless success
+          raise AdError, connection.get_operation_result.error_message
+        else
+          success
+        end
       end
       
       def base_dn
