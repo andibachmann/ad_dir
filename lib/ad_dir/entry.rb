@@ -33,7 +33,7 @@ module AdDir
         @base_dn || connection.base
       end
 
-      # Constructs a DAP::Entry from a Net::LDAP::Entry.
+      # Constructs a AdDir::Entry from a Net::LDAP::Entry.
       def from_entry(entry)
         new(entry.dn, entry)
       end
@@ -220,7 +220,7 @@ module AdDir
         map { |name| [
             name, 
             ldap_entry[name].
-            map { |e| String.new(e) }] }]
+            map { |e| String.new(e).force_encoding('UTF-8') }] }]
     end
   end
 end
