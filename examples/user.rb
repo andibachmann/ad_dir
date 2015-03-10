@@ -10,6 +10,25 @@ class User < AdDir::Entry
     @attributes[:samaccountname].first
   end
 
+  def primary_group
+    @primary_group ||= Group.find_by_objectsid(primarygroupsid)
+  end
+
+  def primary_group_name
+    primary_group.name
+  end
+
+  # 
+  # The SID of the primary group is based on the User's SID
+  #  The last element of the user's SID is replaced with the value of
+  #  :primarygroupid
+  def primarygroupsid
+    @primarygroupsid ||= [
+      objectsid.split("-")[0...-1],
+      @attributes[:primarygroupid].first
+        ].flatten.join("-")
+  end
+
   # Return an array of the Group objects the user is member of.
   #
   def groups

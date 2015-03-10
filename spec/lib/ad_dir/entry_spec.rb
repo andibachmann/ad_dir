@@ -5,32 +5,46 @@ require 'ad_dir'
 describe AdDir::Entry do
 
   it "#connection should return a Net::LDAP connection" do
-    AdDir::Entry.connection.should be_kind_of(Net::LDAP)
+    expect(AdDir::Entry.connection).to be_kind_of(Net::LDAP)
   end
 
   it "#search is a wrapper for Net::LDAP.search()" do
     filter = Net::LDAP::Filter.eq("sAMAccountName", "bachmann")
-    AdDir::Entry.search({:filter => filter, 
-        :base => "ou=people,dc=d,dc=geo,dc=uzh,dc=ch"}).size.should > 0
+    expect( AdDir::Entry.search({:filter => filter, 
+        :base => "ou=people,dc=d,dc=geo,dc=uzh,dc=ch"}).size).to be > 0
     
+  end
+
+  describe "basic functionality" do
+    let(:testuser) { AdDir::Entry.find('testuser') }
+    
+    it "#objectsid returns the SID as string" do
+      expect(testuser.objectsid).to be_kind_of(String)
+      expect(testuser.objectsid).to eq("S-1-5-21-2991927633-4205666616-3907629239-5295")
+    end
+
+    it "#objectsid_raw returns the encoded SID" do
+      expect(testuser.objectsid_raw).to eq("\u0001\u0005\u0000\u0000\u0000\u0000\u0000\u0005\u0015\u0000\u0000\u0000Q1U\xB28a\xAD\xFA\xB7\xB0\xE9\xE8\xAF\u0014\u0000\u0000")
+    end
+
   end
 
   describe "#find_by_xxx method" do
     
     it "find_by_id('bachmann') " do
-      AdDir::Entry.find_by_id('bachmann').dn.should =~ /bachmann/
+      expect( AdDir::Entry.find_by_id('bachmann').dn).to be =~ /bachmann/
     end
 
     it "find_by_mail('andi.bachmann@geo.uzh.ch')" do 
-      AdDir::Entry.find_by_mail('andi.bachmann@geo.uzh.ch').dn.should =~ /bachmann/
+      expect( AdDir::Entry.find_by_mail('andi.bachmann@geo.uzh.ch').dn).to be =~ /bachmann/
     end
 
     it "find_by_mail('*bachmann@geo.uzh.ch')" do 
-      AdDir::Entry.find_by_mail('*bachmann@geo.uzh.ch').dn.should =~ /bachmann/
+      expect( AdDir::Entry.find_by_mail('*bachmann@geo.uzh.ch').dn).to be =~ /bachmann/
     end
 
     it "find_by_noop('crash') should return nil" do
-      AdDir::Entry.find_by_noop('crash').should be_nil
+      expect( AdDir::Entry.find_by_noop('crash')).to be_nil
     end
 
     it ".some_strange_method() should return a NoMethodError" do
@@ -49,10 +63,10 @@ describe AdDir::Entry do
       new_val      = "other value"
 
       testuser[:sn] = new_val
-      AdDir::Entry.find('testuser')[:sn].first.should == new_val
+      expect( AdDir::Entry.find('testuser')[:sn].first).to eq(new_val)
 
       testuser[:sn] = old_val
-      AdDir::Entry.find('testuser')[:sn].first.should == old_val
+      expect( AdDir::Entry.find('testuser')[:sn].first).to eq(old_val)
     end
   end
 

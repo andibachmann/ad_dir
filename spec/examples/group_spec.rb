@@ -4,26 +4,31 @@ require 'examples/group'
 
 describe "Group Examples" do
   let(:group) { Group.find('mfp_test') }
+  let(:testuser) { User.find('testuser') } 
   
   describe "Group essentials" do
     
     it "#find('<some_name>') finds and returns a Group object" do
-      group.class.should == Group
+      expect(group).to be_kind_of(Group)
     end
 
     it ".name returns the group's names" do
-      group.name.should == 'mfp_test'
+      expect( group.name).to eq('mfp_test')
     end
 
     it ".members should return an array of strings of user DNs" do
-      group.members.class.should == Array
-      group.members.first.class.should == String
-      # group.members.should include("CN=Ab AndiBachmann,OU=People,DC=d,DC=geo,DC=uzh,DC=ch")
+      if group.members.empty?
+        group.add_user( testuser )
+        group = Group.find('mfp_test')
+      end
+      expect( group.members ).to be_kind_of(Array)
+      expect( group.members.first).to be_kind_of(String)
+      expect( group.members).to include(testuser.dn)
     end
 
     it ".users should return an array of Users" do
-      group.users.should be_kind_of(Array)
-      group.users.first.should be_kind_of(User)
+      expect(group.users).to be_kind_of(Array)
+      expect(group.users.first).to be_kind_of(User)
     end
   end
 
@@ -33,14 +38,14 @@ describe "Group Examples" do
     it ".add_user(user) should add the user" do
       group.remove_user(user1) if group.members.include?(user1.dn)
       group.add_user(user1)
-      group.members.include?(user1.dn).should be_true
+      expect(group.members.include?(user1.dn)).to be_truthy
     end
 
     it ".remove_user(user) removes the user" do
       group.add_user(user1) unless group.members.include?(user1.dn)
-      group.members.include?(user1.dn).should be_true
+      expect( group.members.include?(user1.dn)).to be_truthy
       group.remove_user(user1)
-      Group.find('mfp_test').members.include?(user1.dn).should be_false
+      expect( Group.find('mfp_test').members.include?(user1.dn) ).to be_falsy
     end
   end
 

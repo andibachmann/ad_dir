@@ -21,6 +21,11 @@ describe "Examples" do
         expect( u.group_names).to be_kind_of(Array)
         expect( u.group_names.join(" ")).to be_kind_of(String)
       end
+
+      it ".primary_group returns the primarygroup" do
+        u = User.find('bachmann')
+        expect( u.primary_group ).to be_kind_of(Group)
+      end
     end
     
     describe "Modiyfing a user" do

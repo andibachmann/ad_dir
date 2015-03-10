@@ -140,6 +140,22 @@ module AdDir
       @base_dn || connection.base
     end
 
+    # SID vs. GUID
+    # https://technet.microsoft.com/en-us/library/cc961625.aspx
+    # objectguid = 'object's Global Unique ID'
+    def objectguid
+      @attributes[:objectguid].first
+    end
+
+    # SID 
+    def objectsid
+      @objectsid ||= decode_sid(@attributes[:objectsid].first)
+    end
+
+    def objectsid_raw
+      @attributes[:objectsid].first
+    end
+
     # 
     def [](name)
       @attributes[normalize_name(name)]
@@ -195,6 +211,57 @@ module AdDir
       raise exception
     end
 
+    # Decode Microsoft Active Directory `objectsid`
+    #
+    # Official Docu-Link: 
+    #    https://msdn.microsoft.com/en-us/library/cc230371.aspx
+    # 
+    # SID= "S-1-" IdentifierAuthority 1*SubAuthority
+    # IdentifierAuthority= IdentifierAuthorityDec / IdentifierAuthorityHex
+    #   ; If the identifier authority is < 2^32, the
+    #   ; identifier authority is represented as a decimal 
+    #   ; number
+    #   ; If the identifier authority is >= 2^32,
+    #   ; the identifier authority is represented in 
+    #   ; hexadecimal
+    # IdentifierAuthorityDec =  1*10DIGIT
+    #   ; IdentifierAuthorityDec, top level authority of a 
+    #   ; security identifier is represented as a decimal number
+    # IdentifierAuthorityHex = "0x" 12HEXDIG
+    #   ; IdentifierAuthorityHex, the top-level authority of a
+    #   ; security identifier is represented as a hexadecimal number
+    # SubAuthority= "-" 1*10DIGIT
+    #   ; Sub-Authority is always represented as a decimal number 
+    #   ; No leading "0" characters are allowed when IdentifierAuthority
+    #   ; or SubAuthority is represented as a decimal number
+    #   ; All hexadecimal digits must be output in string format,
+    #   ; pre-pended by "0x"
+    #
+    # Short Synopsis
+    # http://www.adamretter.org.uk/blog/entries/active-directory-ldap-users-primary-group.xml
+    # 
+    # byte[0] - Revision Level
+    # byte[1] - count of Sub-Authorities
+    # byte[2-7] - 48 bit Authority (big-endian)
+    # <count> Sub-Authorities, 32 bits (== 4 bytes) each (little-endian)
+    #
+    def decode_sid(sid_str)
+      sid_bin   = sid_str.bytes
+      revision  = sid_bin[0]                    # 1st byte
+      count     = sid_bin[1]                    # 2nd byte
+      authority = sid_bin[2..7].join('').to_i   # 3-8 bytes (length: 48bit) 
+      #     authority big-endian
+      # sub-authorities
+      offset    = 8  # start byte
+      size      = 4  # size of chunks, i.e. 4 bytes
+      subauths = (0...count.to_i).collect do |c|
+        si = c * size + offset
+        sid_str[si,size].unpack('V*').first
+      end
+      ["S",revision,authority,subauths].flatten.join("-")
+    end
+    
+    
     # ----------------------------------------------------------------------
     # Cast an LDAP::Entry object into an Entry object
     # 
