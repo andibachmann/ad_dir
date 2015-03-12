@@ -27,6 +27,11 @@ describe AdDir::Entry do
       expect(testuser.objectsid_raw).to eq("\u0001\u0005\u0000\u0000\u0000\u0000\u0000\u0005\u0015\u0000\u0000\u0000Q1U\xB28a\xAD\xFA\xB7\xB0\xE9\xE8\xAF\u0014\u0000\u0000")
     end
 
+    it "#objectguid returns the GUID as string" do
+      expect(testuser.objectguid).to be_kind_of(String)
+      expect(testuser.objectguid).to eq("c3644f86-0b6d-44e2-9f57-ae2aea3df22f")
+    end
+
   end
 
   describe "#find_by_xxx method" do

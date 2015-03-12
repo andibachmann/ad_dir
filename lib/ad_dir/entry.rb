@@ -143,8 +143,12 @@ module AdDir
     # SID vs. GUID
     # https://technet.microsoft.com/en-us/library/cc961625.aspx
     # objectguid = 'object's Global Unique ID'
-    def objectguid
+    def objectguid_raw
       @attributes[:objectguid].first
+    end
+
+    def objectguid
+      @objectguid ||= decode_guid(@attributes[:objectguid].first)
     end
 
     # SID 
@@ -260,7 +264,36 @@ module AdDir
       end
       ["S",revision,authority,subauths].flatten.join("-")
     end
+
+    # http://support2.microsoft.com/default.aspx?scid=kb%3Ben-us%3B325649
+    # and
+    # http://serverfault.com/questions/466594/script-to-resolve-guid-to-string-in-active-directory
     
+    # Example:
+    #    objectguid = "738c16ee-f742-4b01-bbd7-58ac63d0e84c"
+    #    oguid_str  = "\xEE\u0016\x8CsB\xF7\u0001K\xBB\xD7X\xACc\xD0\xE8\\"
+    # 
+    #                   0   1   2   3   4   5   6   7   8   9  10  11  12  13  14  15
+    #     oguid_hex = " ee  16  8c  73  42  f7  01  4b  bb  d7  58  ac  63  d0  e8  5c"
+    #     oguid_dec = "238 022 140 115 066 247 001 075 187 215 088 172 099 208 232 092"
+    #
+    def decode_guid(guid_str)
+      q = []
+      bytes = guid_str.bytes
+      q << bytes_to_hex( bytes[0..3].reverse )
+      q << bytes_to_hex( bytes[4..5].reverse )
+      q << bytes_to_hex( bytes[6..7].reverse )
+      q << bytes_to_hex( bytes[8..9] )
+      q << bytes_to_hex( bytes[10..15])
+      return q.join("-")
+    end
+
+    # Turns any given byte-arr into a hex string
+    # Ensures that any hex-value is represented by 2 digits (prepending single values with '0').
+    def bytes_to_hex(bin_arr)
+      bin_arr.collect { |b| b.to_i.to_s(16).rjust(2,'0') }.join
+    end
+
     
     # ----------------------------------------------------------------------
     # Cast an LDAP::Entry object into an Entry object
