@@ -24,4 +24,5 @@ module AdDir
   end
 end
 
+require 'ad_dir/utilities'
 require 'ad_dir/entry'

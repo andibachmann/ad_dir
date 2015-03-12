@@ -37,6 +37,10 @@ class User < AdDir::Entry
     }
   end
 
+  def last_logon
+    to_datetime(@attributes[:lastlogon].first)
+  end
+
   # Return an array of group names.
   # 
   def group_names
