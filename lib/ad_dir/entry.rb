@@ -162,6 +162,15 @@ module AdDir
       @attributes[:objectsid].first
     end
 
+    # time stamps
+    def created_at
+      @created_at ||= to_datetime(@attributes[:whencreated].first)
+    end
+
+    def updated_at
+      @udpated_at ||= to_datetime(@attributes[:whenudpated].first)
+    end
+
     # 
     def [](name)
       @attributes[normalize_name(name)]
