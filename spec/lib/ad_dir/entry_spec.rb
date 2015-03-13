@@ -32,6 +32,12 @@ describe AdDir::Entry do
       expect(testuser.objectguid).to eq("c3644f86-0b6d-44e2-9f57-ae2aea3df22f")
     end
 
+    it "#created_at returns the creation data" do
+      expect(testuser.created_at).to be_kind_of(Time)
+      expect(testuser.created_at).to eq(Time.new(2011,9,13,16,1,41,"+02:00"))
+      STDERR.puts "testuser.lastlogon = '#{testuser.to_datetime(testuser.attributes[:lastlogon].first).localtime}'"
+    end
+
   end
 
   describe "#find_by_xxx method" do

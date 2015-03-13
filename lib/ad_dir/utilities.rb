@@ -16,10 +16,18 @@ module AdDir
     #   required. This article describes how this conversion can be
     #   done.
     # 
-    def to_datetime(timestamp)
-      Time.at( (timestamp.to_i/10000000) - 11676009600 )
+    # Time.at returns the Time in 'localtime'. The local timezone is
+    # 'guessed' from the underlying operating system (e.g. `locale`).
+    def to_datetime(secs)
+      Time.at( (secs.to_i/10000000) - 11676009600 )
     end
 
+    # The MS time string has the format "YYYYMMDDHHmmss.0Z" (e.g. 
+    # "20140912231209.0Z"). '0Z' denotes the UTC timezone.
+    def utc_to_localtime(timestr)
+      t = timestr.scan(/^(\d{4})(\d{2})(\d{2})(\d{2})(\d{2})(\d{2})/).first
+      Time.utc(t[0],t[1],t[2],t[3],t[4],t[5]).localtime
+    end
 
     # Decode Microsoft Active Directory `objectsid`
     #

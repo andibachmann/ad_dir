@@ -164,11 +164,11 @@ module AdDir
 
     # time stamps
     def created_at
-      @created_at ||= to_datetime(@attributes[:whencreated].first)
+      @created_at ||= utc_to_localtime(@attributes[:whencreated].first)
     end
 
     def updated_at
-      @udpated_at ||= to_datetime(@attributes[:whenudpated].first)
+      @udpated_at ||= utc_to_localtime(@attributes[:whenchanged].first)
     end
 
     # 
