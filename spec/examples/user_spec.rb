@@ -27,10 +27,6 @@ describe "Examples" do
         expect( u.primary_group ).to be_kind_of(Group)
       end
 
-      it ".last_logon returns the correct date time" do
-        u = User.find('bachmann')
-        expect( u.last_logon ).to be_kind_of(Time)
-      end
     end
     
     describe "Modiyfing a user" do

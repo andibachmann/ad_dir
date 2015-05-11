@@ -6,7 +6,7 @@ module AdDir
 
   class Entry
     #
-    include Utilities
+    extend Utilities
     #
     FIND_METHOD_REGEXP = /find(_(all|first|last))?(_by_(\w*))?/
 
@@ -150,12 +150,12 @@ module AdDir
     end
 
     def objectguid
-      @objectguid ||= decode_guid(@attributes[:objectguid].first)
+      @objectguid ||= Entry.decode_guid(@attributes[:objectguid].first)
     end
 
     # SID 
     def objectsid
-      @objectsid ||= decode_sid(@attributes[:objectsid].first)
+      @objectsid ||= Entry.decode_sid(@attributes[:objectsid].first)
     end
 
     def objectsid_raw
@@ -164,11 +164,11 @@ module AdDir
 
     # time stamps
     def created_at
-      @created_at ||= utc_to_localtime(@attributes[:whencreated].first)
+      @created_at ||= Entry.utc_to_localtime(@attributes[:whencreated].first)
     end
 
     def updated_at
-      @udpated_at ||= utc_to_localtime(@attributes[:whenchanged].first)
+      @udpated_at ||= Entry.utc_to_localtime(@attributes[:whenchanged].first)
     end
 
     # 
