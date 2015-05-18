@@ -23,8 +23,10 @@ describe AdDir::Entry do
       expect(testuser.objectsid).to eq("S-1-5-21-2991927633-4205666616-3907629239-5295")
     end
 
-    it "#objectsid_raw returns the encoded SID" do
-      expect(testuser.objectsid_raw).to eq("\u0001\u0005\u0000\u0000\u0000\u0000\u0000\u0005\u0015\u0000\u0000\u0000Q1U\xB28a\xAD\xFA\xB7\xB0\xE9\xE8\xAF\u0014\u0000\u0000")
+    it "#objectsid_raw returns the encoded SID (ASCII_8bit)" do
+      res_ascii = "\x01\x05\x00\x00\x00\x00\x00\x05\x15\x00\x00\x00Q1U\xB28a\xAD\xFA\xB7\xB0\xE9\xE8\xAF\x14\x00\x00".force_encoding(Encoding::ASCII_8BIT)
+
+      expect(testuser.objectsid_raw).to eq( res_ascii )
     end
 
     it "#objectguid returns the GUID as string" do

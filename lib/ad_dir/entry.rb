@@ -146,20 +146,20 @@ module AdDir
     # https://technet.microsoft.com/en-us/library/cc961625.aspx
     # objectguid = 'object's Global Unique ID'
     def objectguid_raw
-      @attributes[:objectguid].first
+      @attributes[:objectguid]
     end
 
     def objectguid
-      @objectguid ||= Entry.decode_guid(@attributes[:objectguid].first)
+      @objectguid ||= Entry.decode_guid(@attributes[:objectguid])
     end
 
     # SID 
     def objectsid
-      @objectsid ||= Entry.decode_sid(@attributes[:objectsid].first)
+      @objectsid ||= Entry.decode_sid(@attributes[:objectsid])
     end
 
     def objectsid_raw
-      @attributes[:objectsid].first
+      @attributes[:objectsid]
     end
 
     # time stamps
@@ -240,6 +240,8 @@ module AdDir
       # by itself, while all other attributes are stored in the hash 
       # 'attributes'.
       names.delete(:dn)
+      names.delete(:objectguid)
+      names.delete(:objectsid)
 
       # LDAP::Entry returns any value as BER (Basic Encoding Rules) String
       # (http://en.wikipedia.org/wiki/Basic_Encoding_Rules). We don't need
@@ -252,6 +254,8 @@ module AdDir
             name, 
             ldap_entry[name].
             map { |e| String.new(e).force_encoding('UTF-8') }] }]
+      @attributes[:objectguid] =ldap_entry[:objectguid].first
+      @attributes[:objectsid] =ldap_entry[:objectsid].first
     end
   end
 end

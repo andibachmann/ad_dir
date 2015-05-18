@@ -126,14 +126,8 @@ module AdDir
     #            [73 8c 16 ee]   [f7 42] [4b 01] [bb d7]   [58 ac 63 d0 e8 5c]
     #
     def decode_guid(guid_str)
-      q = []
-      bytes = guid_str.bytes
-      q << bytes_to_hex( bytes[0..3].reverse )
-      q << bytes_to_hex( bytes[4..5].reverse )
-      q << bytes_to_hex( bytes[6..7].reverse )
-      q << bytes_to_hex( bytes[8..9] )
-      q << bytes_to_hex( bytes[10..15])
-      return q.join("-")
+      q = guid_str.unpack("h8h4h4H4H12")
+      return [ q[0..2].map { |c| c.reverse }, q[3..4] ].flatten.join("-")
     end
 
     # Turns any given byte-arr into a hex string
@@ -148,25 +142,12 @@ module AdDir
     # http://support.microsoft.com/en-us/kb/305144
     # 
     def uac_decode(code)
-      # initialize properties hash
-      props = {}
-      
-      # Convert the code_str into
-      #    1. to_s(16) string represantion of integer radix base 16,
-      #    2. into an array or chars, and
-      #    3. reverse it (to start with the lowest bit)
-      code_to_hex(code).chars.reverse.each_with_index do |b,i|
-        # skip zeros
-        next if b.to_i == 0
-        
-        # calculate the property-code and look it up in the 
-        # UAC_PROPERTIES hash.
-        code = 16**i * b.to_i  
-        prop = UAC_PROPERTIES.select { |_,val| val == code }
-        props.merge!(prop) unless prop.empty?
-      end
-      # return it
-      props
+      # make sure the code is an Integer
+      ci = code.to_i
+
+      # Bitwise ANDing of ci and value returns for each bit a 1
+      # if (and only if) it is present in both values.
+      UAC_PROPERTIES.select { |_,val| val & ci == val }
     end
 
     def compose_uac_code(*props)
