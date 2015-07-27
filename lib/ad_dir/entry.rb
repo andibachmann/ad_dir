@@ -35,6 +35,20 @@ module AdDir
         @base_dn || connection.base
       end
 
+      # creates an AdDir::Entry and store it
+      # We try to create the entry in ActiveDirectory and then
+      # return it again from there.
+      def create(dn, attributes)
+        #
+        success = connection.add(dn:dn, attributes: attributes)
+        if success
+          select_dn(dn)
+        else
+          connection.get_operation_result
+        end
+      end
+
+
       # Constructs a AdDir::Entry from a Net::LDAP::Entry.
       def from_entry(entry)
         new(entry.dn, entry)
@@ -209,7 +223,13 @@ module AdDir
       return success 
     end
     
-    
+
+    # Save 
+    # 
+    def save
+      success = connection.add(dn: dn, attributes: @attributes)
+    end
+      
     private
     def normalize_name(name)
       # Turn all characters of an attribute name into lower case characters.
