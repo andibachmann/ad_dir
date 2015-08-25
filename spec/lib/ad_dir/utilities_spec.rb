@@ -47,4 +47,11 @@ describe AdDir::Utilities do
 
   end
 
+  it "#unicodepwd('Hämmerli-dk23#') encodes the password" do
+    plain = 'Hämmerli-dk23#'
+    unicodepwd = extended_class.unicodepwd(plain)
+    s8b = "\"#{plain}\"".encode(Encoding::UTF_16LE).b
+    expect( unicodepwd ).to eq(s8b)
+  end
+  
 end

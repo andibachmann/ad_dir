@@ -35,8 +35,10 @@ module AdDir
         @base_dn || connection.base
       end
 
-      # creates an AdDir::Entry and store it
-      # We try to create the entry in ActiveDirectory and then
+      ##
+      # Creates an AdDir::Entry and stores it
+      #
+      # We try to create the entry in the ActiveDirectory and then
       # return it again from there.
       def create(dn, attributes)
         #

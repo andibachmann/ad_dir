@@ -161,7 +161,37 @@ module AdDir
       code = code.kind_of?(String) ? code.to_i : code
       code.to_s(16)
     end
-    
+
+    # Converts a plain text password into the ActiveDirectory ++:unicodePwd++
+    # format.
+    # ++:unicodePwd++ must be a double quoted password that in UNICODE format
+    # (i.e. 16bit unicode lower ending, AKA 'UTF_16LE').
+    # 
+    # Attribute description: 
+    #   https://msdn.microsoft.com/en-us/library/cc220961.aspx
+    #
+    # LDAP specific description: 
+    #   https://msdn.microsoft.com/en-us/library/cc223248.aspx
+    #
+    # Windows Example:
+    #
+    #     ASCII "new":     0x6E 0x65 0x77
+    #     UTF-16 "new":    0x6E 0x00 0x65 0x00 0x77 0x00
+    #     UTF-16 "new"
+    #         with quotes: 0x22 0x00 0x6E 0x00 0x65 0x00 0x77 0x00 0x22 0x00
+    #
+    #
+    # Examples:
+    #
+    #      unicodepwd("new")
+    #      => ""\x00n\x00e\x00w\x00"\x00"
+    #
+    #      unicodepwd("Hämmerli-dk23#")
+    #      => ""\x00H\x00\xE4\x00m\x00m\x00e\x00r\x00l\x00i\x00-\x00d\x00k\x002\x003\x00#\x00"\x00"
+    #    
+    def unicodepwd(plain_pw)
+      "\"#{plain_pw}\"".encode(Encoding::UTF_16LE).b
+    end
 
   end
 end
