@@ -31,8 +31,13 @@ module AdDir
         end
       end
       
+      # 
+      def tree_base(tree_base_dn)
+        @base_dn ||= connection.base 
+      end
+      
       def base_dn
-        @base_dn || connection.base
+        @base_dn
       end
 
       ##
@@ -211,12 +216,12 @@ module AdDir
     #
     # Example: Modify the ++:sn++ and ++:mail++ attributes.
     #
-    #   entry.modify({ :sn => "John Doe", 
-    #                  :mail => "john.doe@foo.bar.com" })
+    #   entry.modify({ sn:   "John Doe", 
+    #                  mail: "john.doe@foo.bar.com" })
     # 
     def modify(attr_hash)
       ops     = attr_hash.map { |key,new_val|  [:replace, key, new_val] }
-      success = connection.modify(:dn => dn, :operations => ops )
+      success = connection.modify(dn: dn, operations: ops )
       #
       unless success
         raise_ad_error connection.get_operation_result
