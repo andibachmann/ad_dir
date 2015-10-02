@@ -4,19 +4,21 @@ require 'ad_dir'
 
 describe AdDir::Entry do
 
-  it "#connection should return a Net::LDAP connection" do
-    expect(AdDir::Entry.connection).to be_kind_of(Net::LDAP)
+  
+  it "#connection should return nil" do
+    expect(AdDir::Entry.connection).to be_nil
   end
-
+  
   it "#search is a wrapper for Net::LDAP.search()" do
-    filter = Net::LDAP::Filter.eq("sAMAccountName", "bachmann")
+    filter = Net::LDAP::Filter.eq("sAMAccountName", "*")
     expect( AdDir::Entry.search({:filter => filter, 
-        :base => "ou=people,dc=d,dc=geo,dc=uzh,dc=ch"}).size).to be > 0
+        :base => "ou=people,dc=test,dc=geo,dc=uzh,dc=ch"}).size).to be > 0
     
   end
 
   describe "basic functionality" do
-    let(:testuser) { AdDir::Entry.find('testuser') }
+
+    let(:testuser) { load_data; @testuser }
     
     it "#objectsid returns the SID as string" do
       expect(testuser.objectsid).to be_kind_of(String)

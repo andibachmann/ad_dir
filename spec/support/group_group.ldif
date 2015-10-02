@@ -1,0 +1,24 @@
+# 'normal' (i.e., not 'primary') group
+#
+dn: CN=geo000_s,OU=Groups,DC=d,DC=geo,DC=uzh,DC=ch
+cn: geo000_s
+distinguishedname: CN=geo000_s,OU=Groups,DC=d,DC=geo,DC=uzh,DC=ch
+dscorepropagationdata: 16010101000000.0Z
+grouptype: -2147483646
+instancetype: 4
+member: CN=Thomas Werschlein,OU=People,DC=d,DC=geo,DC=uzh,DC=ch
+member: CN=Andi Bachmann,OU=People,DC=d,DC=geo,DC=uzh,DC=ch
+member: CN=Roya SoleymaniKohler,OU=People,DC=d,DC=geo,DC=uzh,DC=ch
+member: CN=testuser testuser,OU=People,DC=d,DC=geo,DC=uzh,DC=ch
+name: geo000_s
+objectcategory: CN=Group,CN=Schema,CN=Configuration,DC=d,DC=geo,DC=uzh,DC=ch
+objectclass: top
+objectclass: group
+objectguid:: MzF6njbCeU6CtRngcJxUgQ==
+objectsid:: AQUAAAAAAAUVAAAAUTFVsjhhrfq3sOnoPQ0AAA==
+samaccountname: geo000_s
+samaccounttype: 268435456
+usnchanged: 27657
+usncreated: 20643
+whenchanged: 20131030105322.0Z
+whencreated: 20110913133938.0Z

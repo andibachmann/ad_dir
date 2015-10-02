@@ -1,0 +1,20 @@
+# group '0testuser' Primary Group of user 'testuser'
+# 
+dn: CN=0testuser,OU=Groups,DC=d,DC=geo,DC=uzh,DC=ch
+cn: 0testuser
+distinguishedname: CN=0testuser,OU=Groups,DC=d,DC=geo,DC=uzh,DC=ch
+dscorepropagationdata: 16010101000000.0Z
+grouptype: -2147483646
+instancetype: 4
+name: 0testuser
+objectcategory: CN=Group,CN=Schema,CN=Configuration,DC=d,DC=geo,DC=uzh,DC=ch
+objectclass: top
+objectclass: group
+objectguid:: 4wfhUGH0Xkyk+aqZtt2Ncw==
+objectsid:: AQUAAAAAAAUVAAAAUTFVsjhhrfq3sOnojAwAAA==
+samaccountname: 0testuser
+samaccounttype: 268435456
+usnchanged: 20497
+usncreated: 20497
+whenchanged: 20131030105305.0Z
+whencreated: 20110913133925.0Z

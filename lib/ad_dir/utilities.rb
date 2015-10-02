@@ -43,7 +43,8 @@ module AdDir
     #   required. This article describes how this conversion can be
     #   done.
     # 
-    # Time.at returns the Time in 'localtime'. The local timezone is
+    # After the conversion of the MS time format into epoc seconds `Time.at()`
+    # is used to return the time in 'localtime'. The local timezone is
     # 'guessed' from the underlying operating system (e.g. `locale`).
     # 
     def to_datetime(secs)
@@ -57,46 +58,45 @@ module AdDir
       Time.utc(t[0],t[1],t[2],t[3],t[4],t[5]).localtime
     end
 
-    # Decode Microsoft Active Directory `objectsid`
+    # Decode Microsoft Active Directory Attributes +*objectsid*+
     #
     # Official Docu-Link: 
-    #    https://msdn.microsoft.com/en-us/library/cc230371.aspx
+    # https://msdn.microsoft.com/en-us/library/cc230371.aspx
     # 
-    # SID= "S-1-" IdentifierAuthority 1*SubAuthority
-    # IdentifierAuthority= IdentifierAuthorityDec / IdentifierAuthorityHex
-    #   ; If the identifier authority is < 2^32, the
-    #   ; identifier authority is represented as a decimal 
-    #   ; number
-    #   ; If the identifier authority is >= 2^32,
-    #   ; the identifier authority is represented in 
-    #   ; hexadecimal
-    # IdentifierAuthorityDec =  1*10DIGIT
-    #   ; IdentifierAuthorityDec, top level authority of a 
-    #   ; security identifier is represented as a decimal number
-    # IdentifierAuthorityHex = "0x" 12HEXDIG
-    #   ; IdentifierAuthorityHex, the top-level authority of a
-    #   ; security identifier is represented as a hexadecimal number
-    # SubAuthority= "-" 1*10DIGIT
-    #   ; Sub-Authority is always represented as a decimal number 
-    #   ; No leading "0" characters are allowed when IdentifierAuthority
-    #   ; or SubAuthority is represented as a decimal number
-    #   ; All hexadecimal digits must be output in string format,
-    #   ; pre-pended by "0x"
+    #     SID= "S-1-" IdentifierAuthority 1*SubAuthority
+    #     IdentifierAuthority= IdentifierAuthorityDec / IdentifierAuthorityHex
+    #       ; If the identifier authority is < 2^32, the
+    #       ; identifier authority is represented as a decimal 
+    #       ; number
+    #       ; If the identifier authority is >= 2^32,
+    #       ; the identifier authority is represented in 
+    #       ; hexadecimal
+    #     IdentifierAuthorityDec =  1*10DIGIT
+    #       ; IdentifierAuthorityDec, top level authority of a 
+    #       ; security identifier is represented as a decimal number
+    #     IdentifierAuthorityHex = "0x" 12HEXDIG
+    #       ; IdentifierAuthorityHex, the top-level authority of a
+    #       ; security identifier is represented as a hexadecimal number
+    #     SubAuthority= "-" 1*10DIGIT
+    #       ; Sub-Authority is always represented as a decimal number 
+    #       ; No leading "0" characters are allowed when IdentifierAuthority
+    #       ; or SubAuthority is represented as a decimal number
+    #       ; All hexadecimal digits must be output in string format,
+    #       ; pre-pended by "0x"
     #
-    # Short Synopsis
+    # Short Synopsis: 
     # http://www.adamretter.org.uk/blog/entries/active-directory-ldap-users-primary-group.xml
     # 
-    # byte[0] - Revision Level
-    # byte[1] - count of Sub-Authorities
-    # byte[2-7] - 48 bit Authority (big-endian)
-    # <count> Sub-Authorities, 32 bits (== 4 bytes) each (little-endian)
+    # __Example:__
     #
+    #     (raw) objectsid: "\x01\x05\x00\x00\x00\x00\x00\x05\x15\x00\x00\x00\xFF\xA4\xE6\x00\xF8|\xDA3X2=\xF5Q\x04\x00\x00"
+    #     decoded        : "S-1-5-21-15115519-869956856-4114428504-1105"
     def decode_sid(sid_str)
       sid_bin   = sid_str.bytes
-      revision  = sid_bin[0]                    # 1st byte
-      count     = sid_bin[1]                    # 2nd byte
+      revision  = sid_bin[0]                    # 1st byte - Revision Level
+      count     = sid_bin[1]                    # 2nd byte - count of Sub-Authorities
       authority = sid_bin[2..7].join('').to_i   # 3-8 bytes (length: 48bit) 
-      #     authority big-endian
+                                                ##  Authority big-endian
       # sub-authorities
       offset    = 8  # start byte
       size      = 4  # size of chunks, i.e. 4 bytes
@@ -107,23 +107,26 @@ module AdDir
       ["S",revision,authority,subauths].flatten.join("-")
     end
 
-    # http://support2.microsoft.com/default.aspx?scid=kb%3Ben-us%3B325649
-    # and
-    # http://serverfault.com/questions/466594/script-to-resolve-guid-to-string-in-active-directory
-    
+    # URLs: 
+    #
+    #  * http://support2.microsoft.com/default.aspx?scid=kb%3Ben-us%3B325649
+    #  * http://serverfault.com/questions/466594/script-to-resolve-guid-to-string-in-active-directory
+    #
     # Example:
-    #    objectguid = "738c16ee-f742-4b01-bbd7-58ac63d0e85c"
-    #    oguid_str  = "\xEE\u0016\x8CsB\xF7\u0001K\xBB\xD7X\xACc\xD0\xE8\\"
+    #
+    #     objectguid = "738c16ee-f742-4b01-bbd7-58ac63d0e85c"
+    #     oguid_str  = "\xEE\u0016\x8CsB\xF7\u0001K\xBB\xD7X\xACc\xD0\xE8\\"
     # 
-    #    Original byte order:
-    #             0   1   2   3   4   5   6   7   8   9  10  11  12  13  14  15
-    #    dec = "238 022 140 115 066 247 001 075 187 215 088 172 099 208 232 092"
-    #    hex = " ee  16  8c  73  42  f7  01  4b  bb  d7  58  ac  63  d0  e8  5c"
-    #            \------------/  \----/  \----/  \----/  \--------------------/
-    #                  |            |       |      |                |
-    #               reverse      reverse reverse   |                |
-    #                  |            |       |      |                |
-    #            [73 8c 16 ee]   [f7 42] [4b 01] [bb d7]   [58 ac 63 d0 e8 5c]
+    #     Original byte order:
+    #
+    #               0   1   2   3   4   5   6   7   8   9  10  11  12  13  14  15
+    #      dec = "238 022 140 115 066 247 001 075 187 215 088 172 099 208 232 092"
+    #      hex = " ee  16  8c  73  42  f7  01  4b  bb  d7  58  ac  63  d0  e8  5c"
+    #              \------------/  \----/  \----/  \----/  \--------------------/
+    #                    |            |       |      |                |
+    #                 reverse      reverse reverse   |                |
+    #                    |            |       |      |                |
+    #              [73 8c 16 ee]   [f7 42] [4b 01] [bb d7]   [58 ac 63 d0 e8 5c]
     #
     def decode_guid(guid_str)
       q = guid_str.unpack("h8h4h4H4H12")
@@ -138,8 +141,8 @@ module AdDir
     end
 
     # Decode the attribute 'useraccountcontrol'
-    # Docu link
-    # http://support.microsoft.com/en-us/kb/305144
+    # 
+    # Docu link: http://support.microsoft.com/en-us/kb/305144
     # 
     def uac_decode(code)
       # make sure the code is an Integer
@@ -150,17 +153,20 @@ module AdDir
       UAC_PROPERTIES.select { |_,val| val & ci == val }
     end
 
+    # Calculate the binary code for an array of ''user account control''
+    # properties.
+    # 
+    # Example:
+    #
+    #       uac_code = compose_uac_code(
+    #         [ :DONT_EXPIRE_PASSWORD, :DONT_EXPIRE_PASSWORD, :NORMAL_ACCOUNT] )
+    #       # => 66048
     def compose_uac_code(*props)
-      sum = props.inject(0) do |sum,prop|
+      sum = props.uniq.inject(0) do |sum,prop|
         sum +=  UAC_PROPERTIES[prop] if UAC_PROPERTIES.has_key?(prop)
       end.to_s
     end
 
-    # turn String/Fixnum code into hex code
-    def code_to_hex(code)
-      code = code.kind_of?(String) ? code.to_i : code
-      code.to_s(16)
-    end
 
     # Converts a plain text password into the ActiveDirectory ++:unicodePwd++
     # format.

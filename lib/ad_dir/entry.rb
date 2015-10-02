@@ -4,9 +4,8 @@ module AdDir
 
   class AdError < StandardError; end
 
-  class Entry
+  class Entry < Net::LDAP::Entry
     #
-    extend Utilities
     #
     FIND_METHOD_REGEXP = /find(_(all|first|last))?(_by_(\w*))?/
 
@@ -31,13 +30,21 @@ module AdDir
         end
       end
       
+      # Set the tree base for a given class, e.g. the DevOps users in
+      # the Taka Tuka country.
+      # 
+      #     class DevOpsUser
+      #        tree_base 'ou=devops users,ou=taka tuka,dc=my,dc=company,dc=net'
+      #     end
+      #
+      # This limits the ++:base++ DN when doing search operations on the AD.
       # 
       def tree_base(tree_base_dn)
-        @base_dn ||= connection.base 
+        @base_dn ||= tree_base_dn || connection.base
       end
       
       def base_dn
-        @base_dn
+        @base_dn ||= connection.base
       end
 
       ##
@@ -136,51 +143,72 @@ module AdDir
     
     # ----------------------------------------------------------------------
     # Instance Methods
-    # 
+
+    # Returns a hash of all attributes
     attr_reader :attributes
 
-    # Constructs an AdDir::Entry from a +dn+ and an optional Net::LDAP::Entry
-    # that has been returned from a search.
-    def initialize(dn, entry=nil)
-      @dn = dn
-      @attributes = {}
-      cast(entry) if entry
+    # 
+    # 
+    # We do not provide a constructor, but use the standard one
+    # of ++Net::LDAP::Entry++
+    #
+    #     Net::LDAP::Entry.new(dn=nil)
+    def initialize(dn=nil, attributes = {})
+      super(dn)
+      unless attributes.empty?
+        attributes.each do |name,value|
+          @myhash[self.class.attribute_name(name)] = Kernel::Array(value)
+        end
+      end
+      self
     end
 
-    def reload
-      #
+    # The Net::LDAP::Connection object used by this instance.
+    # 
+    # @return [Net::LDAP::Connection]
+    def connection
+      self.class.connection
     end
 
+    # Returns the base tree node used when establishing the connection
+    # to the ActiveDirectory server.
+    def base_dn
+      connection.base_dn
+    end
+    
+    # Returns the DN (Distinguisded Name) of self.
+    #
+    # @return [String] the DN of self.
     def dn
       @dn.downcase
     end
 
-    def connection
-      self.class.connection
+    # Returns the binary ObjectGUID attribute as regular [String].
+    # 
+    # To understand the difference between the GUID (globally unique identifier)
+    # and the SID (security identififer) read this: {https://technet.microsoft.com/en-us/library/cc961625.aspx}
+    #
+    # The conversion is done by {AdDir::Utilities#decode_guid}.
+    #
+    # @see AdDir::Utilities#decode_guid
+    # @return [String] the decoded ObjectGUID
+    def objectguid_decoded
+      @objectguid_decoded ||= Utilities.decode_guid(@attributes[:objectguid])
+    end
+
+    # Returns the binary ObjectSID attribute as regular [String]
+    # 
+    # The conversion is done by {AdDir::Utilities#decode_guid}.
+    #
+    # @see AdDir::Utilities#decode_guid
+    # @return [String] the decoded ObjectGUID
+    def objectsid_decoded
+      @objectsid_decoded ||= Utilities.decode_sid(@myhash[:objectsid])
     end
     
-    def base_dn
-      @base_dn || connection.base
-    end
-
-    # SID vs. GUID
-    # https://technet.microsoft.com/en-us/library/cc961625.aspx
-    # objectguid = 'object's Global Unique ID'
-    def objectguid_raw
-      @attributes[:objectguid]
-    end
-
-    def objectguid
-      @objectguid ||= Entry.decode_guid(@attributes[:objectguid])
-    end
-
-    # SID 
+    
     def objectsid
-      @objectsid ||= Entry.decode_sid(@attributes[:objectsid])
-    end
-
-    def objectsid_raw
-      @attributes[:objectsid]
+      @myhash[:objectsid]
     end
 
     # time stamps

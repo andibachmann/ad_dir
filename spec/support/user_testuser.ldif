@@ -1,0 +1,69 @@
+# testuser extracted 2015-03-16 15:01
+#
+dn: CN=testuser testuser,OU=People,DC=d,DC=geo,DC=uzh,DC=ch
+accountexpires: 9223372036854775807
+badpasswordtime: 130613983610962881
+badpwdcount: 0
+cn: testuser testuser
+codepage: 0
+countrycode: 0
+displayname: testuser testuser
+distinguishedname: CN=testuser testuser,OU=People,DC=d,DC=geo,DC=uzh,DC=ch
+dscorepropagationdata: 16010101000000.0Z
+givenname: Test-Firstname
+homedirectory: \\winhome.geo.uzh.ch\testuser
+homedrive: H:
+instancetype: 4
+lastlogoff: 0
+lastlogon: 130697737383848481
+lastlogontimestamp: 130697778683998976
+logoncount: 192
+mail: testuser.testuser@geo.uzh.ch
+memberof: CN=0guest020,OU=Groups,DC=d,DC=geo,DC=uzh,DC=ch
+memberof: CN=0guest019,OU=Groups,DC=d,DC=geo,DC=uzh,DC=ch
+memberof: CN=0guest018,OU=Groups,DC=d,DC=geo,DC=uzh,DC=ch
+memberof: CN=0guest017,OU=Groups,DC=d,DC=geo,DC=uzh,DC=ch
+memberof: CN=0guest016,OU=Groups,DC=d,DC=geo,DC=uzh,DC=ch
+memberof: CN=0guest015,OU=Groups,DC=d,DC=geo,DC=uzh,DC=ch
+memberof: CN=0guest014,OU=Groups,DC=d,DC=geo,DC=uzh,DC=ch
+memberof: CN=0guest013,OU=Groups,DC=d,DC=geo,DC=uzh,DC=ch
+memberof: CN=0guest012,OU=Groups,DC=d,DC=geo,DC=uzh,DC=ch
+memberof: CN=0guest011,OU=Groups,DC=d,DC=geo,DC=uzh,DC=ch
+memberof: CN=0guest010,OU=Groups,DC=d,DC=geo,DC=uzh,DC=ch
+memberof: CN=0guest009,OU=Groups,DC=d,DC=geo,DC=uzh,DC=ch
+memberof: CN=0guest008,OU=Groups,DC=d,DC=geo,DC=uzh,DC=ch
+memberof: CN=0guest007,OU=Groups,DC=d,DC=geo,DC=uzh,DC=ch
+memberof: CN=0guest006,OU=Groups,DC=d,DC=geo,DC=uzh,DC=ch
+memberof: CN=0guest005,OU=Groups,DC=d,DC=geo,DC=uzh,DC=ch
+memberof: CN=0guest004,OU=Groups,DC=d,DC=geo,DC=uzh,DC=ch
+memberof: CN=0guest003,OU=Groups,DC=d,DC=geo,DC=uzh,DC=ch
+memberof: CN=0guest002,OU=Groups,DC=d,DC=geo,DC=uzh,DC=ch
+memberof: CN=0guest001,OU=Groups,DC=d,DC=geo,DC=uzh,DC=ch
+memberof: CN=geo000_s,OU=Groups,DC=d,DC=geo,DC=uzh,DC=ch
+memberof: CN=mfp_student,OU=Groups,DC=d,DC=geo,DC=uzh,DC=ch
+memberof: CN=Domain Users,CN=Users,DC=d,DC=geo,DC=uzh,DC=ch
+mstsexpiredate: 20150228194126.0Z
+mstslicenseversion: 393218
+mstslicenseversion2: 7
+mstslicenseversion3: C50-6.02-S
+mstsmanagingls: 00252-60270-91291-AT579
+name: testuser testuser
+objectcategory: CN=Person,CN=Schema,CN=Configuration,DC=d,DC=geo,DC=uzh,DC=ch
+objectclass: top
+objectclass: person
+objectclass: organizationalPerson
+objectclass: user
+objectguid:: hk9kw20L4kSfV64q6j3yLw==
+objectsid:: AQUAAAAAAAUVAAAAUTFVsjhhrfq3sOnorxQAAA==
+primarygroupid: 3212
+profilepath: \\profile.geo.uzh.ch\profiles$\testuser
+pwdlastset: 130589780728073688
+samaccountname: testuser
+samaccounttype: 805306368
+sn: Test-Lastname
+useraccountcontrol: 66048
+userprincipalname: testuser@d.geo.uzh.ch
+usnchanged: 10165118
+usncreated: 18565
+whenchanged: 20150310155409.0Z
+whencreated: 20110913140141.0Z

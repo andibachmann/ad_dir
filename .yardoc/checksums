@@ -1,0 +1,4 @@
+lib/ad_dir.rb 66c8d492057efd5ea564b96327090e24ab4dddbd
+lib/ad_dir/entry.rb 945f8e646f40e01a17ce9350d5f2308dc61d312c
+lib/ad_dir/version.rb af290ee7c5b2a472c0c332132d4c548b63af95f8
+lib/ad_dir/utilities.rb 4fc018258015a42c9de4d64ebde1770c55bb41ab
