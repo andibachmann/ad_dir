@@ -5,16 +5,16 @@ require 'examples/user'
 class Group < AdDir::Entry
 
   @base_dn = 'ou=groups,dc=d,dc=geo,dc=uzh,dc=ch'
-  
+
   # The name of the group (i.e. the samaccountname)
-  # 
+  #
   def name
     @attributes[:samaccountname].first
   end
 
 
   # Return all users being member of this group.
-  # 
+  #
   def users
     members.map { |dn|
       User.select_dn(dn)
@@ -22,12 +22,12 @@ class Group < AdDir::Entry
   end
 
   # Return the DNs of all user (with all downcase chars)
-  # 
+  #
   def members
-    @attributes[:member] ||= [] 
+    @attributes[:member] ||= []
     @attributes[:member].map { |dn| dn.downcase }
   end
-  
+
   # Add a <tt>user</tt>
   #
   def add_user(user)

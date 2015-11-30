@@ -1,7 +1,7 @@
 require 'net/ldap'
 require 'ad_dir/version'
 
-# AdDir alllows you to talk with an ActiveDirectory in a 'active_record' 
+# AdDir alllows you to talk with an ActiveDirectory in a 'active_record'
 # like way.
 #
 # Initialize a AdDir connection by providing host, login credentials and
@@ -14,37 +14,30 @@ require 'ad_dir/version'
 #                         password: "opensesame"
 #                       )
 #
-#  
-
+#
 module AdDir
   class << self
     attr_reader :connection
-    
+
     # #establish_connection establishes a connection to the ActiveDirectory
     # running on `host` using the credentials `username`/`password`.
     #
     # The connection is a ++Net::LDAP.connection++. As any ActiveDirectory is
     # always run with encrypted connections, these options are fixed and set
-    # by default. 
+    # by default.
     # I.e. :port => 636, :encryption => :simple_tls, :auth_method => :simple.
     # (check out the `net-ldap` API for details).
-    # 
-    # 
+    #
     def establish_connection(host:, username:, password:, base:)
-      @connection = Net::LDAP.new( 
-        :host => host,
-        :port => 636,
-        :base => base,
-        :encryption => :simple_tls,
-        :auth => { 
-          method: :simple, 
-          :username => username, 
-          :password => password
-        }
+      @connection = Net::LDAP.new(
+        host: host, base: base,
+        encryption: :simple_tls, port: 636,
+        auth: {
+          username: username, password: password,
+          method: :simple }
         )
       @connection.bind
     end
-    
   end
 end
 

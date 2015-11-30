@@ -3,3 +3,4 @@ html/
 pkg/
 vendor/cache/*.gem
 spec/ad_test.yaml
+doc/

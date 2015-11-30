@@ -1,0 +1,32 @@
+#  
+# rubocop
+#
+#   Do this:
+#      bundle exec rubocop --only Style/TrailingWhitespace --auto-correct
+#
+
+# inherit_from:
+#  - .rubocop_todo.yml
+
+AllCops:
+  Include:
+    - '**/Rakefile'
+    - '**/config.ru'
+  Exclude:
+    - 'db/**/*'
+    - 'pkg/**/*'
+    - 'doc/**/*'
+    - 'config/**/*'
+    - 'script/**/*'
+    - 'examples/**/*'
+    - !ruby/regexp /old_and_unused\.rb$/
+
+
+Style/StringLiterals:
+  Enabled: true
+
+# Offense count: 41
+# Cop supports --auto-correct.
+Style/TrailingWhitespace:
+  Enabled: true
+

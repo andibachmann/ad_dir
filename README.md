@@ -9,6 +9,13 @@
 
 `ad_dir` allows to query and manage entries of the AD directory
 
+The most important class is `AdDir::Entry`. It is kind of a proxy
+the wraps most of the instance methods to Net::LDAP::Entry while
+most of the class methods deal with connecting to the ActiveDirectory,
+and search and retrieve an entry.
+
+
+
 # Examples
 
   require 'ad_dir'
@@ -19,7 +26,7 @@
 Minimal set of attributes:
 
     require 'yaml'
-    AdDir.connection = Net::LDAP.new(YAML.load_file('spec/ad_test.yaml'))
+    AdDir.establish_connection(YAML.load_file('spec/ad_test.yaml'))
     
     firstname = 'Ulrich'
     lastname  = 'Binder'

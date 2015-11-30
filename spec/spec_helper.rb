@@ -3,12 +3,9 @@
 require 'rspec'
 require 'ad_dir'
 
-# include AdDir
-# require 'yaml'
-# AdDir.connection = Net::LDAP.new(YAML.load_file('spec/ad_test.yaml'))
-
-# examples
-# Add the examples directory to the LOAD_PATH
-$:.unshift File.join(File.dirname(__FILE__),"..")
-
 require 'support/load_factories'
+
+RSpec.configure do |c|
+  c.filter_run focus: true
+  c.run_all_when_everything_filtered = true
+end

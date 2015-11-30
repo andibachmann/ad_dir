@@ -23,6 +23,6 @@ Gem::Specification.new do |gem|
   gem.add_development_dependency 'wirble', '> 0.1'
   gem.add_development_dependency 'rspec', '~> 3.2'
   gem.add_development_dependency 'rubygems-tasks', "~> 0.2"
-
+  gem.add_development_dependency("rubocop", "~> 0.28.0")
   gem.add_dependency 'net-ldap', '~> 0.11'
 end

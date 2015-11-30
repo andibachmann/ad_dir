@@ -19,9 +19,11 @@ rescue Bundler::BundlerError => e
 end
 
 require 'rake'
-
 require 'rubygems/tasks'
 Gem::Tasks.new()
+
+require 'rubocop/rake_task'
+RuboCop::RakeTask.new
 
 require 'yard'
 desc 'Run yarddoc for the source'
@@ -70,7 +72,7 @@ task :pushgiuz do
     warn "cp #{File.join(project.class::PKG_DIR, project.gemspec.file_name)} #{repo_dir}"
     exit 1
   end
-  # 
+  #
   if `uname -s` == "SunOS"
     sh "cd /web/gems && rake"
   else

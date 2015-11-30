@@ -18,7 +18,7 @@ class User < AdDir::Entry
     primary_group.name
   end
 
-  # 
+  #
   # The SID of the primary group is based on the User's SID
   #  The last element of the user's SID is replaced with the value of
   #  :primarygroupid
@@ -42,7 +42,7 @@ class User < AdDir::Entry
   end
 
   # Return an array of group names.
-  # 
+  #
   def group_names
     # In order to avoid multiple ldap-connection requests we do not iterate
     # over `.groups` (AKA @attributes[:memberof] but extract the names from
@@ -53,7 +53,7 @@ class User < AdDir::Entry
   end
 
   # Add a group
-  # 
+  #
   def add_group(group)
     group.add_user(self) unless group_names.include?(group.name)
   end
