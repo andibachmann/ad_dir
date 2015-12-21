@@ -3,7 +3,6 @@
 require 'examples/group'
 
 class User < AdDir::Entry
-
   @base_dn = 'ou=people,dc=d,dc=geo,dc=uzh,dc=ch'
 
   def user_name
@@ -24,9 +23,9 @@ class User < AdDir::Entry
   #  :primarygroupid
   def primarygroupsid
     @primarygroupsid ||= [
-      objectsid.split("-")[0...-1],
+      objectsid.split('-')[0...-1],
       @attributes[:primarygroupid].first
-        ].flatten.join("-")
+        ].flatten.join('-')
   end
 
   # Return an array of the Group objects the user is member of.
@@ -49,7 +48,7 @@ class User < AdDir::Entry
     # the DNs and return the CN part.
     @attributes[:memberof].
       delete_if { |dn| dn =~ /Domain\ Users/ }.
-      map { |dn|  dn.split(",").first.split("=").last.downcase }
+      map { |dn|  dn.split(',').first.split('=').last.downcase }
   end
 
   # Add a group

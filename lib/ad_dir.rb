@@ -1,11 +1,12 @@
 require 'net/ldap'
+require 'fix_utf'
 require 'ad_dir/version'
 
 # AdDir alllows you to talk with an ActiveDirectory in a 'active_record'
 # like way.
 #
 # Initialize a AdDir connection by providing host, login credentials and
-# (optionally) a base dn.
+# a base dn.
 #
 #    AdDir.establish_connection(
 #                         host:     "my.nice.com",
@@ -17,8 +18,6 @@ require 'ad_dir/version'
 #
 module AdDir
   class << self
-    attr_reader :connection
-
     # #establish_connection establishes a connection to the ActiveDirectory
     # running on `host` using the credentials `username`/`password`.
     #
@@ -37,6 +36,21 @@ module AdDir
           method: :simple }
         )
       @connection.bind
+    end
+
+    # Returns a Net::LDAP object (@see Net::LDAP ).
+    # If no connection was established it raises a RuntimeError.
+    def connection
+      return @connection if @connection
+      warn 'ERROR: Use \'AdDir#establish_connection\' first to connect \
+to your Active Directory.'
+      fail RuntimeError.new('No connection set up!')
+    end
+
+    # Alias/Shortcut for
+    # @see Net::LDAP.new().connection.get_operation_result
+    def last_op
+      @connection && @connection.get_operation_result
     end
   end
 end

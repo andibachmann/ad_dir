@@ -1,160 +1,256 @@
 # encoding: utf-8
 #
 
+require 'ad_dir/derived_attributes'
+
 module AdDir
   class AdError < StandardError; end
 
-  # Entry
   # Entry is basically a wrapper of Net::LDAP::Entry with some additional
   # class methods that provide ActiveRecord-like finders.
+  #
   class Entry
-    #
-    #
-    FIND_METHOD_REGEXP = /find(_(all|first|last))?(_by_(\w*))?/
+    include DerivedAttributes
+
+    # Regexp that matches `find_xxx` methods.
+    # Note: Likewise ActiveRecorc the difference between `#find` and
+    # `#where` is boldly that `#find` is used when you are really
+    # looking for a given entry, while the later is used to filter on
+    # some condition.
+    FIND_METHOD_REGEXP = /\Afind(_by_(\w+))?\Z/
 
     # ----------------------------------------------------------------------
     # CLASS Methods
     #
-    class << self
-      def connection
-        AdDir.connection
-      end
+    # class << self
+    # Returns the ActiveDirectory's connection
+    def self.connection
+      AdDir.connection
+    end
 
-      #
-      def search(args = {})
-        args[:base]          ||= base_dn
-        args[:scope]         ||= Net::LDAP::SearchScope_WholeSubtree
+    #
+    def self.search(args = {})
+      args[:base] ||= @tree_base
+      args[:scope] ||= Net::LDAP::SearchScope_WholeSubtree
 
-        success = connection.search(args)
-        if success
-          success
-        else
-          fail AdError, connection.get_operation_result.error_message
-        end
-      end
-
-      # Set the tree base for a given class, e.g. the DevOps users in
-      # the Taka Tuka country.
-      #
-      #     class DevOpsUser
-      #        tree_base 'ou=DevOps users,ou=taka tuka,dc=my,dc=company,dc=net'
-      #     end
-      #
-      # This limits the ++:base++ DN when doing search operations on the AD.
-      #
-      def tree_base(tree_base_dn)
-        @base_dn ||= tree_base_dn || connection.base
-      end
-
-      def base_dn
-        @base_dn ||= connection.base
-      end
-
-      ##
-      # Creates an AdDir::Entry and stores it
-      #
-      # We try to create the entry in the ActiveDirectory and then
-      # return it again from there.
-      # Depending on your ActiveDirectory the set of mandatory attributes
-      # may vary. If you don't provide the correct set of attributes
-      # the ActiveDirectory will refuse to add the entry and fail.
-      def create(dn, attributes)
-        #
-        success = connection.add(dn: dn, attributes: attributes)
-        if success
-          select_dn(dn)
-        else
-          connection.get_operation_result
-        end
-      end
-
-      # Constructs a AdDir::Entry from a Net::LDAP::Entry.
-      def from_ldap_entry(entry)
-        e = new(entry.dn)
-        e.instance_variable_set('@ldap_entry', entry)
-        e
-      end
-
-      # TODO: Do not call `find_by_dn` but directly got to 'search'.
-      def select_dn(dn)
-        args = {}
-        args[:base]   = dn
-        args[:scope]  = Net::LDAP::SearchScope_BaseObject
-        args[:filter] = Net::LDAP::Filter.present('objectclass')
-        find_by_dn(dn, args)
-      end
-
-      # Search and other utilities
-      #
-      #
-      # The find-methods have to follow this pattern:
-      #    find_<:all_flag_>?by_<attribute>(<pattern> [,
-      #           {optional_hash_of_ldap_search_options}])
-      #
-      # The behaviour of the <:all_flag> follows pretty much the activerecord
-      # philosophy. +find_by_id+ will either find exactly one record or
-      # it returns nil. +find_all_by_id+ will always return an array
-      # being either empty or comprising all records matching the pattern).
-      #
-      # @param method_sym [Symbol] the initially called method
-      # (e.g. `#find_all_by_cn('Doe')`).
-      # @param pattern [String] the pattern we are looking for.
-      # @param options [Array|Hash] of additional ldap_options
-      #
-      # TODO: remove the 'options' hash.
-      def my_find(method_sym, pattern, options = {})
-        # evaluate the method name
-        number_scope, attr = evaluate_finder_method(method_sym)
-        search_args   = {}
-        unless options[:filter]
-          search_args[:filter] =
-            case attr
-            when nil, 'id'
-              Net::LDAP::Filter.eq('sAMAccountName', pattern)
-            else Net::LDAP::Filter.eq(attr, pattern)
-            end
-        end
-        search_args   = options.merge(search_args) unless options.nil?
-        # puts search_args.inspect
-        records       = search(search_args).map { |e| from_ldap_entry(e) }
-        if number_scope == 'all'
-          return records
-        else
-          # i.e. records.send("first") or records.send("last")
-          return records.send(number_scope)
-        end
-      end
-
-      # analyze and extract number_scope and attribute in
-      # dynamic finder
-      def evaluate_finder_method(method_sym)
-        _, num_scope, _by, attr = method_sym.to_s.scan(FIND_METHOD_REGEXP).first
-        num_scope ||= 'first'
-        [num_scope, attr]
-      end
-
-      # dynamic method handling
-      # find out if I have to deal with it
-      #    find_<number_scope>_by_<attr>
-      #
-      def my_method?(method_sym)
-        method_sym.to_s =~ FIND_METHOD_REGEXP
-      end
-
-      def respond_to_missing?(method_sym, include_all = false)
-        my_method?(method_sym) || super(method_sym, include_all)
-      end
-
-      def method_missing(method_sym, *args, &block)
-        if my_method?(method_sym)
-          my_find(method_sym, *args)
-        else
-          # No need to hand over method's arguments:
-          # +super+ will find them in ARGV.
-          super
-        end
+      success = connection.search(args)
+      if success
+        success
+      else
+        fail AdError, connection.get_operation_result.error_message
       end
     end
+
+    # Set the search base for a given class, e.g. the DevOps users in
+    # the Taka Tuka country.
+    #
+    #     class DevOpsUser
+    #       self.tree_base = 'ou=DevOps,ou=taka tuka,dc=my,dc=company,dc=net'
+    #     end
+    #
+    # This limits the ++:base++ DN when doing search operations on the AD.
+    def self.tree_base=(value)
+      @tree_base = value
+    end
+
+    # Returns the tree_base of this class.
+    # @retunr String
+    def self.tree_base
+      @tree_base || nil
+    end
+
+    # Sets the name of the attribute that acts as `primary_key`.
+    #
+    #     class User < AdDir::Entry
+    #       self.primary_key = :samaccountname
+    #     end
+    #
+    def self.primary_key=(value)
+      @primary_key = value && value.to_s
+    end
+
+    # Returns the name of the attribute that acts as `primary_key`.
+    #
+    # The primary_key is used as default when searching.
+    #
+    #     AdDir::Entry.find('jdoe')
+    #
+    # searches for an entry with 'samaccountname' = 'jdoe'.
+    # @see {#primary_key}.
+    def self.primary_key
+      @primary_key ||= 'samaccountname'
+    end
+
+    ##
+    # Instantiates an AdDir::Entry and saves it in the ActiveDirectory.
+    #
+    # We try to create the entry in the ActiveDirectory and then
+    # return it again from there.
+    # Depending on your ActiveDirectory the set of mandatory attributes
+    # may vary. If you don't provide the correct set of attributes
+    # the ActiveDirectory will refuse to add the entry and fail.
+    def self.create(dn, attributes)
+      #
+      success = connection.add(dn: dn, attributes: attributes)
+      if success
+        select_dn(dn)
+      else
+        connection.get_operation_result
+      end
+    end
+
+    # Constructs a AdDir::Entry from a Net::LDAP::Entry.
+    def self.from_ldap_entry(entry)
+      e = new(entry.dn)
+      e.instance_variable_set('@ldap_entry', entry)
+      e
+    end
+
+    # Select an entry by its '''Distinguished Name''' (DN)
+    #
+    # Example
+    #
+    #     AdDir::Entry.select_dn('CN=Joe Doe,OU=People,DC=acme,DC=com')
+    #
+    # @params dn [String] Distinguished Name of an entry
+    # @returns Entry or nil
+    def self.select_dn(dn)
+      success = _select_dn(dn)
+      success && from_ldap_entry(success.first)
+    end
+
+    # This method fetches an ActiveDirectory by its DN.
+    # The hope is this is the most efficient way to fetch
+    # an entry.
+    # :nodoc:
+    def self._select_dn(dn)
+      args = {
+        base:   dn,
+        scope:  Net::LDAP::SearchScope_BaseObject,
+        filter: Net::LDAP::Filter.present('objectclass')
+      }
+      connection.search(args)
+    end
+
+    # Search and other utilities
+    #
+    # Note: `find` methods return a single model instance (or nil), whereas
+    # `where` always returns a 'collection' of model instances.
+    #
+    # The find-methods have to follow this pattern:
+    #    find_by_<attribute>(<pattern>)
+    #
+    #
+    # @param method_sym [Symbol] the initially called method
+    # @param pattern [String] the pattern we are looking for.
+    #
+    def self.my_find(method_sym, pattern)
+      # evaluate the method name
+      attr    = evaluate_finder_method(method_sym)
+      filter  = Net::LDAP::Filter.eq(attr, pattern)
+      records = search(filter: filter).map do |e|
+        entry = from_ldap_entry(e)
+        entry.instance_variable_set('@new_entry', false)
+        entry
+      end
+      records.first
+    end
+    private_class_method :my_find
+
+    # analyze and extract the attribute in the dynamic
+    # find(_by_xxx) method.
+    #
+    # If no attribute is given `uid` is returned
+    def self.evaluate_finder_method(method_sym)
+      method_sym.to_s.match(FIND_METHOD_REGEXP)[2] || primary_key
+    end
+    private_class_method :evaluate_finder_method
+
+    # Returns an array of entries filtered by the conditions given
+    # in the arguments.
+    #
+    # `#where` accepts conditions in the two following formats.
+    #
+    # === String Representation of LDAP Search Filter
+    #
+    # A single string representing an filter as set out in
+    # {http://tools.ietf.org/html/rfc4515 RFC 4515}
+    #
+    # Examples: [http://tools.ietf.org/html/rfc4515#page-5]
+    #
+    #     AdDir::Entry.where('(samaccountname=jdoe)')
+    #     AdDir::Entry.where('(|(sn=*müller*)(givenname=*müller*))')
+    #
+    # === Hash
+    #
+    # Pass in a hash of conditions. Each hash entry represents an
+    # equality condition where the key denotes the name of an
+    # attribute and the value its predicate.  All conditions are
+    # logically combined by 'AND'.
+    #
+    # Only equality conditions are allowed.
+    #
+    # Examples:
+    #
+    #     AdDir::Entry.where(sn: 'Doe', givenname: 'John')
+    #
+    # will search for entries having sn == 'Doe' && givenname == 'John'.
+    #
+    #     AdDir::Entry.where(sn: '*oe', mail: '@geo.uzh.ch')
+    #
+    # will match all entries with sn ending with 'oe' and having a mail
+    # address in the `geo.uzh.ch` domain.
+    #
+    # @param opts [String|Hash]
+    # @return [Array[Entry]] | []
+    def self.where(opts)
+      if opts.instance_of?(Hash)
+        filter = build_filter_from_hash(opts)
+      else
+        filter = Net::LDAP::Filter.from_rfc4515(opts)
+      end
+      search(filter: filter).map { |e| from_ldap_entry(e) }
+    end
+
+    # Builds a Net::LDAP::Filter based on a given hash.
+    # Each key-value pair of the hash is interpreted as an attribute
+    # that must match the value.
+    #
+    # Example:
+    #
+    #      build_filter_from_hash(sn: 'Doe', givenname: 'John').to_rfc2254
+    #      # =>  "(&(sn=Doe)(givenname=John))"
+    #
+    def self.build_filter_from_hash(opts)
+      attr, val = opts.shift
+      filter = Net::LDAP::Filter.eq(attr, val)
+      opts.each { |attr, val| filter &= Net::LDAP::Filter.eq(attr, val) }
+      filter
+    end
+
+    # dynamic method handling
+    # find out if I have to deal with it
+    #    find_<number_scope>_by_<attr>
+    #
+    def self.my_method?(method_sym)
+      method_sym.to_s =~ FIND_METHOD_REGEXP
+    end
+
+    def self.respond_to_missing?(method_sym, include_all = false)
+      my_method?(method_sym) || super(method_sym, include_all)
+    end
+
+    def self.method_missing(method_sym, *args, &block)
+      if my_method?(method_sym)
+        my_find(method_sym, *args)
+      else
+        # No need to hand over method's arguments:
+        # +super+ will find them in ARGV.
+        super
+      end
+    end
+
+    private_class_method :build_filter_from_hash
     #
     # End CLASS Methods
     # ----------------------------------------------------------------------
@@ -166,34 +262,30 @@ module AdDir
     # of ++Net::LDAP::Entry++
     #
     #     Net::LDAP::Entry.new(dn=nil)
-    def initialize(dn = nil, attributes = {})
+    def initialize(dn = nil, attrs = {})
       #
       @ldap_entry = Net::LDAP::Entry.new(dn)
-      unless attributes.empty?
-        attributes.each do |name, value|
-          @ldap_entry[name] = value
-        end
-      end
+      attrs.each { |name, value| @ldap_entry[name] = value }
+      @new_entry = true
       self
     end
 
     # The Net::LDAP::Connection object used by this instance.
     #
-    # @return [Net::LDAP::Connection]
+    # @return [Net::LDAP]
     def connection
       self.class.connection
     end
 
     # Returns the base tree node used when establishing the connection
     # to the ActiveDirectory server.
-    def base_dn
-      connection.base_dn
-    end
+    # def base
+    #   connection.base
+    # end
 
     def attributes
-      @ldap_entry.attribute_names.inject({}) do |hsh, key|
+      @ldap_entry.attribute_names.each_with_object({}) do |key, hsh|
         hsh[key] = @ldap_entry[key]
-        hsh
       end
     end
 
@@ -209,44 +301,16 @@ module AdDir
       end
     end
 
-    # Returns the binary ObjectGUID attribute as regular [String].
+    # Retrieve the value of the given attribute.
     #
-    # To understand the difference between the GUID (globally unique identifier)
-    # and the SID (security identififer) read this:
-    # {https://technet.microsoft.com/en-us/library/cc961625.aspx}
-    #
-    # The conversion is done by {AdDir::Utilities#decode_guid}.
-    #
-    # @see AdDir::Utilities#decode_guid
-    # @return [String] the decoded ObjectGUID
-    def objectguid_decoded
-      @objectguid_decoded ||= Utilities.decode_guid(@ldap_entry[:objectguid].first)
-    end
-
-    # Returns the binary ObjectSID attribute as regular [String]
-    #
-    # The conversion is done by {AdDir::Utilities#decode_guid}.
-    #
-    # @see AdDir::Utilities#decode_guid
-    # @return [String] the decoded ObjectGUID
-    def objectsid_decoded
-      @objectsid_decoded ||= Utilities.decode_sid(@ldap_entry[:objectsid])
-    end
-
-    # time stamps
-    def created_at
-      @created_at ||=
-        Utilities.utc_to_localtime(@ldap_entry[:whencreated].first)
-    end
-
-    def updated_at
-      @udpated_at ||=
-        Utilities.utc_to_localtime(@ldap_entry[:whenchanged].first)
-    end
-
+    # Attribute values are always wrapped in an array, although most
+    # attributes are singled-valued.
     #
     def [](name)
-      @ldap_entry[name]
+      val_arr = @ldap_entry[name]
+      return val_arr if val_arr.empty?
+      #
+      val_arr.size == 1 ? val_arr.shift : val_arr
     end
 
     #
@@ -262,7 +326,7 @@ module AdDir
     #                  mail: "john.doe@foo.bar.com" })
     #
     def modify(attr_hash)
-      ops     = attr_hash.map { |key, new_val|  [:replace, key, new_val] }
+      ops     = attr_hash.map { |key, new_val| [:replace, key, new_val] }
       success = connection.modify(dn: dn, operations: ops)
       #
       if success
@@ -274,14 +338,78 @@ module AdDir
 
     # Save the entry
     def save
-      connection.add(dn: dn, attributes: attributes)
+      # make sure to delete the :dn attribute!
+      # `#attributes` creates a new hash with all attributes, including
+      # the `:dn`
+      create_or_update
     end
 
-    private
+    # Returns true if the instance is not saved in the AD.
+    def new_entry?
+      @new_entry
+    end
 
-    def normalize_name(name)
-      # Turn all characters of an attribute name into lower case characters.
-      name.to_s.downcase.to_sym
+    # compares the given hash with the internal @ldap_entry.attributes
+    def changed?
+      changed_attributes.size > 0
+    end
+
+    # For each changed attribute the old and new value(s) are stored
+    # in a hash.
+    def changed_attributes
+      persisted_attrs = self.class.select_dn(dn).attributes
+      @changed_attributes = (@ldap_entry.attribute_names + persisted_attrs.keys)
+        .uniq
+        .each_with_object({}) do |key, memo|
+        unless @ldap_entry[key] == persisted_attrs[key]
+          memo[key] = [persisted_attrs[key], @ldap_entry[key]]
+        end
+      end
+    end
+
+    # Destroy the entry
+    def destroy
+      connection.delete(dn: dn)
+    end
+
+    protected
+
+    #
+    def create_or_update
+      result = new_entry? ? _create_entry : _update_entry
+      result != false
+    end
+
+    def _update_entry
+      if changed?
+        modify_params = changed_attributes
+          .each_with_object({}) { |(k, v), hsh| hsh[k] = v.last }
+        modify(modify_params) && reload
+      else
+        0
+      end
+    end
+
+    def _create_entry
+      attrs = attributes
+      attrs.delete(:dn)
+      success = connection.add(dn: dn, attributes: attrs)
+      if success
+        reload
+      else
+        success
+      end
+    end
+
+    # reload
+    def reload
+      success = self.class._select_dn(dn)
+      if success
+        @new_entry  = false
+        @ldap_entry = success.first
+      else
+        false
+      end
     end
 
     def raise_ad_error(error)

@@ -1,0 +1,53 @@
+#  
+# rubocop config file for auto-correction
+#
+#   Do this:
+#      bundle exec rubocop -a -c ./rubocop-spaces.yml
+#
+AllCops:
+  # Disable all Cops
+  DisabledByDefault: true
+  DisplayCopNames: true
+  # Enables the result cache if true. Can be overridden by the --cache command
+  # line option.
+  UseCache: false
+  # Threshold for how many files can be stored in the result cache before some
+  # of the files are automatically removed.
+  MaxFilesInCache: 20000
+  # The cache will be stored in "rubocop_cache" under this directory. The name
+  # "/tmp" is special and will be converted to the system temporary directory,
+  # which is "/tmp" on Unix-like systems, but could be something else on other
+  # systems.
+  CacheRootDirectory: /tmp
+
+
+Style/StringLiterals:
+  Enabled: true
+
+Style/TrailingWhitespace:
+  Enabled: true
+
+Style/TrailingWhitespace:
+  Enabled: true
+
+Style/TrailingBlankLines:
+  Enabled: true
+
+Style/BlockEndNewline:
+  Enabled: true
+
+Style/EmptyLines:
+  Enabled: true
+
+Style/EmptyLinesAroundBlockBody:
+  Enabled: true
+
+Style/EmptyLinesAroundClassBody:
+  Enabled: true
+
+Style/EmptyLinesAroundMethodBody:
+  Enabled: true
+
+Style/EmptyLinesAroundModuleBody:
+  Enabled: true
+

@@ -3,7 +3,6 @@
 require 'examples/user'
 
 class Group < AdDir::Entry
-
   @base_dn = 'ou=groups,dc=d,dc=geo,dc=uzh,dc=ch'
 
   # The name of the group (i.e. the samaccountname)
@@ -11,7 +10,6 @@ class Group < AdDir::Entry
   def name
     @attributes[:samaccountname].first
   end
-
 
   # Return all users being member of this group.
   #
@@ -47,5 +45,4 @@ class Group < AdDir::Entry
   def modify_users(new_users)
     @attributes[:member] = new_users if modify({:member => new_users})
   end
-
 end

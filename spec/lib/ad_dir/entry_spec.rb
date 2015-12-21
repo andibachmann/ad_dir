@@ -2,64 +2,103 @@ require 'spec_helper'
 require 'ad_dir'
 
 describe AdDir::Entry do
+  context 'Class Functions' do
+    describe 'when using defaults' do
+      context '.primary_key' do
+        specify { expect(described_class.primary_key).to eq('samaccountname') }
+      end
+    end
+
+    context 'when `self.primary_key = :dn`' do
+      # Make sure to reset the :unique_attribute
+      after(:example) do
+        described_class.primary_key = :samaccountname
+      end
+
+      it '.primary_key = :dn' do
+        described_class.primary_key = :dn
+        expect(described_class.primary_key).to eq('dn')
+      end
+
+      it '.find() will search with the :dn attribute' do
+        described_class.primary_key = 'dn'
+        expect(described_class.send(:evaluate_finder_method, :find)).to eq('dn')
+      end
+    end
+  end
+
   # define a testuser
   let(:testuser) { load_data && @testuser }
   let(:entry_klass) { class_double('AdDir::Entry') }
 
-  describe 'basic functionality' do
+  describe 'basic functionalities' do
     it '#cn returns the value of the \'cn\'-Attribute' do
       expect(testuser.cn.first).to be_kind_of(String)
     end
   end
 
   context 'finder functionality' do
-    #entry = class_double('AdDir::Entry')
-
-    it '#find_by_id(<username>)' do
-      allow(entry_klass).to receive(:find_by_id).with('testuser')
-        .and_return(testuser)
-      allow(entry_klass).to receive(:my_find)
-        .with('id', 'testuser') { testuser }
-      expect(entry_klass.find_by_id('testuser')).to eq(testuser)
-    end
-    
-    it '#find_by_lastname' do
-      allow(entry_klass).to receive(:find_by_lastname).with('Testuser')
-        .and_return(testuser)
-      allow(entry_klass).to receive(:my_find).with('lastname', 'Testuser')
-        .and_return(testuser)
+    it '#evaluate_finder_method(:find_by_some_attribute) \
+       returns \'some_attribute\'' do
+      expect(
+        # Note: by using :send() we can bypass the `protected` mode
+        # for this method
+        described_class.send(:evaluate_finder_method, :find_by_some_attributes)
+        ).to eq('some_attributes')
     end
 
-    it '#find_all_by_id("*") returns all users' do
-      allow(entry_klass).to receive(:find_all_by_id).with('*')
-        .and_return([testuser])
-      allow(entry_klass).to receive(:my_find).with('id', '*', :all)
-        .and_return([testuser])
-      expect(entry_klass.find_all_by_id('*')).to include(testuser)
+    context '.find()' do
+      it 'without attribute searches \'samaccountname\'' do
+        expect(
+          described_class.send(:evaluate_finder_method, :find)
+          ).to eq('samaccountname')
+      end
     end
 
-    it '#find_all_by_id(\'non_existent\') returns an empty array ' do
-      allow(entry_klass).to receive(:find_all_by_id).with('non_existent')
-        .and_return([])
-      allow(entry_klass).to receive(:my_find).with('id', 'non_existent', :all)
-        .and_return([])
-      expect(entry_klass.find_all_by_id('non_existent')).to be_empty
+    context '.find_by_xx()' do
+      it '.find_by_id()' do
+        allow(entry_klass).to receive(:find_by_id).with('testuser')
+          .and_return(testuser)
+        allow(entry_klass).to receive(:my_find)
+          .with('id', 'testuser') { testuser }
+        expect(entry_klass.find_by_id('testuser')).to eq(testuser)
+      end
+
+      it '.find_by_lastname()' do
+        allow(entry_klass).to receive(:find_by_lastname).with('Testuser')
+          .and_return(testuser)
+        allow(entry_klass).to receive(:my_find).with('lastname', 'Testuser')
+          .and_return(testuser)
+      end
+      it '.find_by_nonexistent_attr() will fail' do
+        allow(entry_klass).to receive(:find_by_nonexistent_attr)
+          .with('Testuser')
+          .and_return(nil)
+        allow(entry_klass).to receive(:my_find)
+          .with('nonexistent_attr', 'Testuser')
+          .and_return(nil)
+        expect(entry_klass.find_by_nonexistent_attr('Testuser')).to eq(nil)
+      end
     end
   end
 
-  xdescribe 'modifying an entry' do
-    #
-    let(:testuser) { AdDir::Entry.find('testuser') }
+  describe 'modifying an entry' do
+    # Makes sure we have clean object to start with.
+    let (:user) { testuser.dup }
 
-    it "entry[:key] = new_val modifies the value of attribute ':key'" do
-      old_val      = testuser[:sn].first
-      new_val      = 'other value'
+    it '#[:key] = val' do
+      new_val   = 'other value'
+      user[:sn] = new_val
+      expect(user[:sn]).to eq(new_val)
+    end
 
-      testuser[:sn] = new_val
-      expect(AdDir::Entry.find('testuser')[:sn].first).to eq(new_val)
+    it 'should fail' do
+      expect(user[:sn]).to eq('Test-Lastname')
+    end
 
-      testuser[:sn] = old_val
-      expect(AdDir::Entry.find('testuser')[:sn].first).to eq(old_val)
+    it '#[:sn]=(value)' do
+      user[:sn] = 'bling'
+      expect(user[:sn]).to eq('bling')
     end
   end
 end
