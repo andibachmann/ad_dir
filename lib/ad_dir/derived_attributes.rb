@@ -1,6 +1,9 @@
 #
-#
 module AdDir
+  # DerivedAttributes adds some nice attribute getters for binary
+  # attributes used solely by ActiveDirectory.
+  #
+  # 
   module DerivedAttributes
     # Returns the binary ObjectGUID attribute as regular [String].
     #
@@ -19,12 +22,12 @@ module AdDir
 
     # Returns the binary ObjectSID attribute as regular [String]
     #
-    # The conversion is done by {AdDir::Utilities#decode_guid}.
+    # The conversion is done by {AdDir::Utilities#decode_did}.
     #
-    # @see AdDir::Utilities#decode_guid
-    # @return [String] the decoded ObjectGUID
+    # @see AdDir::Utilities#decode_sid
+    # @return [String] the decoded ObjectSID
     def objectsid_decoded
-      @objectsid_decoded ||= Utilities.decode_sid(@ldap_entry[:objectsid])
+      @objectsid_decoded ||= Utilities.decode_sid(@ldap_entry[:objectsid].first)
     end
 
     # time stamps
