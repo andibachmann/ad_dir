@@ -15,7 +15,6 @@ most of the class methods deal with connecting to the ActiveDirectory,
 and search and retrieve an entry.
 
 
-
 # Examples
 
   require 'ad_dir'

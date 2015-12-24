@@ -4,18 +4,54 @@
 require 'ad_dir/derived_attributes'
 
 module AdDir
+  # Generic Error for AdDir
   class AdError < StandardError; end
 
   # Entry is basically a wrapper of Net::LDAP::Entry with some additional
   # class methods that provide ActiveRecord-like finders.
   #
+  # # Retrieving entries
+  # ## Finder
+  # 
+  #     AdDir::Entry.find('jdoe')
+  #     # => searches with an LDAP filter '(samaccountname=jdoe)'
+  #
+  #     AdDir::Entry.find_by_givenname('Doe*')
+  #     # => '(givenname=Doe*)'
+  #
+  # ## Where (Filter)
+  #
+  # * Using a Hash
+  #
+  # ```
+  #     AdDir::Entry.where(cn: 'Doe', mail: 'john.doe@ibm.com')
+  #     # => '(&(cn=Doe)(mail=john.doe@ibm.com))'
+  # ```
+  #
+  # * Using a LDAP-Filter-String
+  #
+  # ```
+  #   AdDir::Entry.where('(|(sn=Foo)(cn=Bar))')
+  # ```
+  #
+  # # Creating new Entries
+  #
+  # ```
+  # jdoe = AdDir::Entry.new(dn: 'dn=John Doe,ou=people,dc=my,dc=geo,dc=ch', 
+  #                         attributes: attrs)
+  # jdoe.new_entry?
+  # # => true
+  # jdoe.save
+  # ```
+  #
   class Entry
     include DerivedAttributes
 
     # Regexp that matches `find_xxx` methods.
-    # Note: Likewise ActiveRecorc the difference between `#find` and
+    #
+    # Note: Likewise ActiveRecord the difference between `#find` and
     # `#where` is boldly that `#find` is used when you are really
-    # looking for a given entry, while the later is used to filter on
+    # looking for a given entry, while the latter is used to filter on
     # some condition.
     FIND_METHOD_REGEXP = /\Afind(_by_(\w+))?\Z/
 
@@ -28,7 +64,9 @@ module AdDir
       AdDir.connection
     end
 
-    #
+    # Search
+    # @return [Array<Net::LDAP::Entry>, nil] Objects found in the 
+    #   ActiveDirectory. Can be nil
     def self.search(args = {})
       args[:base] ||= @tree_base
       args[:scope] ||= Net::LDAP::SearchScope_WholeSubtree
@@ -54,7 +92,7 @@ module AdDir
     end
 
     # Returns the tree_base of this class.
-    # @retunr String
+    # @return String
     def self.tree_base
       @tree_base || nil
     end
@@ -112,8 +150,8 @@ module AdDir
     #
     #     AdDir::Entry.select_dn('CN=Joe Doe,OU=People,DC=acme,DC=com')
     #
-    # @params dn [String] Distinguished Name of an entry
-    # @returns Entry or nil
+    # @param dn [String] Distinguished Name of an entry
+    # @return Entry or nil
     def self.select_dn(dn)
       success = _select_dn(dn)
       success && from_ldap_entry(success.first)
@@ -171,7 +209,7 @@ module AdDir
     #
     # `#where` accepts conditions in the two following formats.
     #
-    # === String Representation of LDAP Search Filter
+    # ### String Representation of LDAP Search Filter
     #
     # A single string representing an filter as set out in
     # {http://tools.ietf.org/html/rfc4515 RFC 4515}
@@ -181,7 +219,7 @@ module AdDir
     #     AdDir::Entry.where('(samaccountname=jdoe)')
     #     AdDir::Entry.where('(|(sn=*müller*)(givenname=*müller*))')
     #
-    # === Hash
+    # ### Hash
     #
     # Pass in a hash of conditions. Each hash entry represents an
     # equality condition where the key denotes the name of an

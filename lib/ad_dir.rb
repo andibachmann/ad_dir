@@ -8,25 +8,28 @@ require 'ad_dir/version'
 # Initialize a AdDir connection by providing host, login credentials and
 # a base dn.
 #
-#    AdDir.establish_connection(
-#                         host:     "my.nice.com",
-#                         base:     "dc=my,dc=nice,dc=com",
-#                         username: "cn=manager, dc=example, dc=com",
-#                         password: "opensesame"
-#                       )
-#
+#     AdDir.establish_connection(
+#       host:     'my.nice.com',
+#       base:     'dc=my,dc=nice,dc=com',
+#       username: 'cn=manager,dc=example,dc=com',
+#       password: 'opensesame'
+#       )
 #
 module AdDir
   class << self
-    # #establish_connection establishes a connection to the ActiveDirectory
+    # Establishes a connection to the ActiveDirectory
     # running on `host` using the credentials `username`/`password`.
     #
-    # The connection is a ++Net::LDAP.connection++. As any ActiveDirectory is
+    # The connection is a **`Net::LDAP.connection`**. As any ActiveDirectory is
     # always run with encrypted connections, these options are fixed and set
     # by default.
-    # I.e. :port => 636, :encryption => :simple_tls, :auth_method => :simple.
-    # (check out the `net-ldap` API for details).
+    # I.e. 
+    # 
+    #     port: 636 
+    #     encryption: :simple_tls
+    #     auth_method: :simple
     #
+    # (check out the `net-ldap` API for details).
     def establish_connection(host:, username:, password:, base:)
       @connection = Net::LDAP.new(
         host: host, base: base,
@@ -47,8 +50,8 @@ to your Active Directory.'
       fail RuntimeError.new('No connection set up!')
     end
 
-    # Alias/Shortcut for
-    # @see Net::LDAP.new().connection.get_operation_result
+    # Get the status of the last operation.
+    # Alias/Shortcut for `Net::LDAP.new().connection.get_operation_result`
     def last_op
       @connection && @connection.get_operation_result
     end
