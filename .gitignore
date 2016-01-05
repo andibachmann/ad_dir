@@ -1,7 +1,7 @@
 Gemfile.lock
 html/
 pkg/
-.yardoc/*
+.yardoc/
 vendor/cache/*.gem
 spec/ad_test.yaml
 doc/

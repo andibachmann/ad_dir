@@ -1,5 +1,0 @@
-lib/play.rb c06b83d40d3317d81cff43cd9d03b04ec0f387f1
-lib/ad_dir.rb ed1015f52f2147ffc85e03ef681302dfb266014e
-lib/ad_dir/entry.rb 63be6b478b7a1081cc74afa81f11f48a4424b0ee
-lib/ad_dir/version.rb 7cbbcf4f3f4623626edc73882151dba338600919
-lib/ad_dir/utilities.rb 739e2b7dd41b7a696f33cf2f862a7719113cf006
