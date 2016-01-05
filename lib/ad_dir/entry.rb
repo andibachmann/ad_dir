@@ -12,7 +12,7 @@ module AdDir
   #
   # # Retrieving entries
   # ## Finder
-  # 
+  #
   #     AdDir::Entry.find('jdoe')
   #     # => searches with an LDAP filter '(samaccountname=jdoe)'
   #
@@ -34,10 +34,17 @@ module AdDir
   #   AdDir::Entry.where('(|(sn=Foo)(cn=Bar))')
   # ```
   #
+  # ## All
+  #
+  # ``` 
+  #   AdDir::Entry.all
+  #   # => retrieves all entries for the given 'tree_base'
+  # ```
+  #
   # # Creating new Entries
   #
   # ```
-  # jdoe = AdDir::Entry.new(dn: 'dn=John Doe,ou=people,dc=my,dc=geo,dc=ch', 
+  # jdoe = AdDir::Entry.new(dn: 'dn=John Doe,ou=people,dc=my,dc=geo,dc=ch',
   #                         attributes: attrs)
   # jdoe.new_entry?
   # # => true
@@ -65,7 +72,7 @@ module AdDir
     end
 
     # Search
-    # @return [Array<Net::LDAP::Entry>, nil] Objects found in the 
+    # @return [Array<Net::LDAP::Entry>, nil] Objects found in the
     #   ActiveDirectory. Can be nil
     def self.search(args = {})
       args[:base] ||= @tree_base
@@ -76,6 +83,13 @@ module AdDir
         success
       else
         fail AdError, connection.get_operation_result.error_message
+      end
+    end
+
+    # @return [Array] all objects
+    def self.all
+      search(base: @tree_base).collect do |e|
+        from_ldap_entry(e)
       end
     end
 
@@ -141,6 +155,7 @@ module AdDir
     def self.from_ldap_entry(entry)
       e = new(entry.dn)
       e.instance_variable_set('@ldap_entry', entry)
+      e.instance_variable_set('@new_entry', false)
       e
     end
 
@@ -376,9 +391,6 @@ module AdDir
 
     # Save the entry
     def save
-      # make sure to delete the :dn attribute!
-      # `#attributes` creates a new hash with all attributes, including
-      # the `:dn`
       create_or_update
     end
 

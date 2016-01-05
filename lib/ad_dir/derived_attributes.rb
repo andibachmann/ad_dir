@@ -3,7 +3,7 @@ module AdDir
   # DerivedAttributes adds some nice attribute getters for binary
   # attributes used solely by ActiveDirectory.
   #
-  # 
+  #
   module DerivedAttributes
     # Returns the binary ObjectGUID attribute as regular [String].
     #

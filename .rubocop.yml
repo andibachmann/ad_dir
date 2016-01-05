@@ -2,13 +2,13 @@
 AllCops:
   Exclude:
     - '**/examples/**'
+    - 'spec/**/*'
   #
   DisabledByDefault: false
-  
+  DisplayCopNames: true
 
 Style/MultilineOperationIndentation:
   Enabled: false
-
 
 Style/AsciiComments:
   Enabled: false

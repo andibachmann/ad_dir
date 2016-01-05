@@ -44,7 +44,9 @@ describe AdDir::Entry do
         let(:ldap_filter) do |example|
           example.description
         end
+
         it '(sn=doe)' do
+          #result = described_class.where(ldap_filter)
           result = described_class.where(ldap_filter)
           expect(result.first.sn.first).to eq('Doe')
         end

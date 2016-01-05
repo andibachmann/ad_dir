@@ -3,7 +3,9 @@ module AdDir
   # Provides useful functions to de- and encode MS-specific binary fields
   # and timestamps.
   module Utilities
-    extend self
+    #extend self
+    module_function
+
     # UserAccountControl Properties
     # URL: https://support.microsoft.com/en-us/kb/305144
     # see also #uac_decode
