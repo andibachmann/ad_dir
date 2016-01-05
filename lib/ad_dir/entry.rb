@@ -363,7 +363,7 @@ module AdDir
       val_arr = @ldap_entry[name]
       return val_arr if val_arr.empty?
       #
-      val_arr.size == 1 ? val_arr.shift : val_arr
+      val_arr.size == 1 ? val_arr.first : val_arr
     end
 
     #
