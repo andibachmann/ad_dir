@@ -40,5 +40,10 @@ module AdDir
       @udpated_at ||=
         Utilities.utc_to_localtime(@ldap_entry[:whenchanged].first)
     end
+
+    # return all derived attributes
+    def derived_attributes
+      Module.nesting.first.public_instance_methods
+    end
   end
 end
