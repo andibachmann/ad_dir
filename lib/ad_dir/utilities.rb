@@ -3,7 +3,6 @@ module AdDir
   # Provides useful functions to de- and encode MS-specific binary fields
   # and timestamps.
   module Utilities
-    #extend self
     module_function
 
     # UserAccountControl Properties
@@ -63,6 +62,8 @@ module AdDir
       Time.utc(t[0], t[1], t[2], t[3], t[4], t[5]).localtime
     end
 
+    # rubocop:disable Metrics/LineLength
+
     # Decode Microsoft Active Directory Attributes +*objectsid*+
     #
     # Official Docu-Link:
@@ -112,8 +113,11 @@ module AdDir
       end
       ['S', revision, authority, subauths].flatten.join('-')
     end
+    # rubocop:enable Metrics/LineLength
 
-    # URLs:
+    # rubocop:disable Metrics/LineLength
+
+    # Documentation URLs:
     #
     #  * http://support2.microsoft.com/default.aspx?scid=kb%3Ben-us%3B325649
     #  * http://serverfault.com/questions/466594/script-to-resolve-guid-to-string-in-active-directory
@@ -138,6 +142,7 @@ module AdDir
       q = guid_str.unpack('h8h4h4H4H12')
       [q[0..2].map(&:reverse), q[3..4]].flatten.join('-')
     end
+    # rubocop:enable Metrics/LineLength
 
     # Turns any given byte-arr into a hex string
     # Ensures that any hex-value is represented by 2 digits
@@ -173,6 +178,8 @@ module AdDir
       end.to_s
     end
 
+    # rubocop:disable Metrics/LineLength
+
     # Converts a plain text password into the ActiveDirectory ++:unicodePwd++
     # format.
     # ++:unicodePwd++ must be a double quoted password that in UNICODE format
@@ -203,5 +210,6 @@ module AdDir
     def unicodepwd(plain_pw)
       "\"#{plain_pw}\"".encode(Encoding::UTF_16LE).b
     end
+    # rubocop:enable Metrics/LineLength
   end
 end

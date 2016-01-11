@@ -3,6 +3,8 @@ AllCops:
   Exclude:
     - '**/examples/**'
     - 'spec/**/*'
+    - 'lib/fix_utf.rb'
+    - 'lib/play.rb'
   #
   DisabledByDefault: false
   DisplayCopNames: true

@@ -10,8 +10,33 @@ module AdDir
   # Entry is basically a wrapper of Net::LDAP::Entry with some additional
   # class methods that provide ActiveRecord-like finders.
   #
-  # # Retrieving entries
-  # ## Finder
+  # ## Create
+  # * Create an entry by specifying a DN and providing an conformant set
+  # of valid attributes:
+  #
+  # ```
+  # jdoe = AdDir::Entry.create(dn: 'cn=John Doe,ou=mgrs,dc=my,dc=nice,dc=com',
+  #   givenname: 'John',
+  #   sn: 'Doe',
+  #   objectclass: %w(top person organizationalPerson user),
+  #   mail: 'john.doe@my.nice.com')
+  # ```
+  #
+  # * Build a new entry first and then save it.
+  #
+  # ```
+  # jdoe = AdDir::Entry.new('cn=John Doe,ou=mgrs,dc=my,dc=nice,dc=com')
+  # jdoe[:sn] = 'Doe'
+  # jdoe[:givenname] = 'John'
+  # jdoe[:objectclass] = %w(top person organizationalPerson user)
+  # jdoe[:mail] = 'john.doe@my.nice.com'
+  # jdoe.new_entry?
+  # # => true
+  # jdoe.save
+  # ```
+  #
+  # ## Read
+  # ### `#find`
   #
   #     AdDir::Entry.find('jdoe')
   #     # => searches with an LDAP filter '(samaccountname=jdoe)'
@@ -19,7 +44,7 @@ module AdDir
   #     AdDir::Entry.find_by_givenname('Doe*')
   #     # => '(givenname=Doe*)'
   #
-  # ## Where (Filter)
+  # ### `#where` (Filter)
   #
   # * Using a Hash
   #
@@ -34,21 +59,29 @@ module AdDir
   #   AdDir::Entry.where('(|(sn=Foo)(cn=Bar))')
   # ```
   #
-  # ## All
+  # ### `#all`
   #
-  # ``` 
+  # ```
   #   AdDir::Entry.all
   #   # => retrieves all entries for the given 'tree_base'
   # ```
   #
-  # # Creating new Entries
+  # ## Update
   #
   # ```
-  # jdoe = AdDir::Entry.new(dn: 'dn=John Doe,ou=people,dc=my,dc=geo,dc=ch',
-  #                         attributes: attrs)
-  # jdoe.new_entry?
+  # jdoe = AdDir::Entry.find('jdoe')
+  # jdoe[:givenname] = 'Jonny'   # instead of 'John'
+  # jdoe.changed?
   # # => true
+  # jdoe.changes
+  # # => {givenname: ['John', 'Jonny']}
   # jdoe.save
+  # ```
+  #
+  # ## Destroy
+  #
+  # ```
+  # jdoe.destroy
   # ```
   #
   class Entry
@@ -62,17 +95,15 @@ module AdDir
     # some condition.
     FIND_METHOD_REGEXP = /\Afind(_by_(\w+))?\Z/
 
-    # ----------------------------------------------------------------------
-    # CLASS Methods
-    #
-    # class << self
+    # ---------------------------------------------------------- CLASS Methods
+
     # Returns the ActiveDirectory's connection
     def self.connection
       AdDir.connection
     end
 
-    # Search
-    # @return [Array<Net::LDAP::Entry>, nil] Objects found in the
+    # Search.
+    # @return [Array<Net::LDAP::Entry>|nil] Objects found in the
     #   ActiveDirectory. Can be nil
     def self.search(args = {})
       args[:base] ||= @tree_base
@@ -85,6 +116,7 @@ module AdDir
         fail AdError, connection.get_operation_result.error_message
       end
     end
+    private_class_method :search
 
     # @return [Array] all objects
     def self.all
@@ -277,9 +309,10 @@ module AdDir
     def self.build_filter_from_hash(opts)
       attr, val = opts.shift
       filter = Net::LDAP::Filter.eq(attr, val)
-      opts.each { |attr, val| filter &= Net::LDAP::Filter.eq(attr, val) }
+      opts.each { |k, v| filter &= Net::LDAP::Filter.eq(k, v) }
       filter
     end
+    private_class_method :build_filter_from_hash
 
     # dynamic method handling
     # find out if I have to deal with it
@@ -288,10 +321,12 @@ module AdDir
     def self.my_method?(method_sym)
       method_sym.to_s =~ FIND_METHOD_REGEXP
     end
+    private_class_method :my_method?
 
     def self.respond_to_missing?(method_sym, include_all = false)
       my_method?(method_sym) || super(method_sym, include_all)
     end
+    private_class_method :respond_to_missing?
 
     def self.method_missing(method_sym, *args, &block)
       if my_method?(method_sym)
@@ -302,8 +337,7 @@ module AdDir
         super
       end
     end
-
-    private_class_method :build_filter_from_hash
+    private_class_method :method_missing
     #
     # End CLASS Methods
     # ----------------------------------------------------------------------
@@ -342,9 +376,10 @@ module AdDir
       end
     end
 
-    def respond_to_missing?(method_sym, include_private = false)
+    def respond_to_missing?(method_sym, include_private = false) # :nodoc
       @ldap_entry.respond_to?(method_sym) || super.respond_to?(method_sym)
     end
+    private :respond_to_missing?
 
     def method_missing(method_sym, *args, &block)
       if @ldap_entry.respond_to?(method_sym)
@@ -353,6 +388,7 @@ module AdDir
         super(method_sym, *args, &block)
       end
     end
+    private :method_missing
 
     # Retrieve the value of the given attribute.
     #
@@ -366,7 +402,12 @@ module AdDir
       val_arr.size == 1 ? val_arr.first : val_arr
     end
 
-    #
+    # Set the the attribute ''name'' to the value ''value''.
+    # If the attribute ''name'' exists its value is overwritten.
+    # If no attribute ''name'' exists a new attribute is created with the
+    # provided value.
+    # @param name[Symbol] attribute name
+    # @param value value of attribute
     def []=(name, value)
       @ldap_entry[name] = value
     end

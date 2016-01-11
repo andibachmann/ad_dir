@@ -20,7 +20,8 @@ behaves like ActiveRecord.)
 
   gem.add_development_dependency 'bundler', '~> 1.6'
   gem.add_development_dependency 'rake', '~> 10.4'
-  gem.add_development_dependency 'yard', '~> 0.8'
+  gem.add_development_dependency 'yard'
+  gem.add_development_dependency 'redcarpet'
   gem.add_development_dependency 'wirble', '> 0.1'
   gem.add_development_dependency 'rspec', '~> 3.2'
   gem.add_development_dependency 'rubygems-tasks', '~> 0.2'

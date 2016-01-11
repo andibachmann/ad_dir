@@ -1,4 +1,4 @@
-module AdDir # rubocop:disable Documentation
+module AdDir
   # ad_dir version
   VERSION = '0.9.8'
 end

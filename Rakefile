@@ -41,8 +41,8 @@ require 'yard'
 desc 'Run yarddoc for the source'
 YARD::Rake::YardocTask.new do |t|
   t.files   = ['lib/**/*.rb', '-', 'README.md']
-  t.options = ['--markup=markdown']
-  # t.stats_options = ['--list-undoc']
+  t.options = ['--markup=markdown', '--exclude=play.rb', '--exclude=fix_utf.rb']
+  t.stats_options = ['--list-undoc']
 end
 
 require 'rspec/core/rake_task'
