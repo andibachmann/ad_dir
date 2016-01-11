@@ -9,6 +9,10 @@ AllCops:
   DisabledByDefault: false
   DisplayCopNames: true
 
+Style/StringLiterals:
+  # EnforcedStyle: double_quotes
+  EnforcedStyle: single_quotes
+
 Style/MultilineOperationIndentation:
   Enabled: false
 

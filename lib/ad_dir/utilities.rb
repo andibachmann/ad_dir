@@ -154,6 +154,9 @@ module AdDir
     # Decode the attribute 'useraccountcontrol'
     #
     # Docu link: http://support.microsoft.com/en-us/kb/305144
+    # @example:
+    #   uac_decode(66048)
+    #   # => {:NORMAL_ACCOUNT=>512, :DONT_EXPIRE_PASSWORD=>65536}
     #
     def uac_decode(code)
       # make sure the code is an Integer
