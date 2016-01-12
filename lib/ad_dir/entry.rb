@@ -188,6 +188,7 @@ module AdDir
       e = new(entry.dn)
       e.instance_variable_set('@ldap_entry', entry)
       e.instance_variable_set('@new_entry', false)
+      e.instance_variable_set('@persisted_attrs', e.attributes.dup)
       e
     end
 
@@ -204,7 +205,7 @@ module AdDir
       success && from_ldap_entry(success.first)
     end
 
-    # This method fetches an ActiveDirectory by its DN.
+    # This method fetches a raw **`Net::LDAP::Entry`** given the DN.
     # The hope is this is the most efficient way to fetch
     # an entry.
     # :nodoc:
@@ -364,12 +365,8 @@ module AdDir
       self.class.connection
     end
 
-    # Returns the base tree node used when establishing the connection
-    # to the ActiveDirectory server.
-    # def base
-    #   connection.base
-    # end
-
+    # Returns a hash with all attributes and values.
+    # @return [Hash]
     def attributes
       @ldap_entry.attribute_names.each_with_object({}) do |key, hsh|
         hsh[key] = @ldap_entry[key]
@@ -420,11 +417,11 @@ module AdDir
     #                  mail: "john.doe@foo.bar.com" })
     #
     def modify(attr_hash)
-      ops     = attr_hash.map { |key, new_val| [:replace, key, new_val] }
+      ops     = prepare_modify_params(attr_hash)
       success = connection.modify(dn: dn, operations: ops)
       #
       if success
-        success
+        success && select_dn(dn)
       else
         raise_ad_error connection.get_operation_result
       end
@@ -442,18 +439,34 @@ module AdDir
 
     # compares the given hash with the internal @ldap_entry.attributes
     def changed?
-      changed_attributes.size > 0
+      changes.size > 0
     end
 
-    # For each changed attribute the old and new value(s) are stored
-    # in a hash.
-    def changed_attributes
-      persisted_attrs = self.class.select_dn(dn).attributes
-      @changed_attributes = (@ldap_entry.attribute_names + persisted_attrs.keys)
-        .uniq
+    # Returns a hash of changed attributes indicating their original and new
+    # values like  `attr => [original value, new value]`.
+    #
+    # @example
+    #    user = AdDir::Entry.find('jdoe')
+    #    user[:sn]
+    #    # => "Doe"
+    #    user[:sn] = 'Doey'
+    #    user.changes
+    #    # => {:sn=>[["Doe"], ["Doey"]]}
+    #
+    #    # Adding a new attribute
+    #    user[:foo] = 'bar'
+    #    user.changes
+    #    # => {:sn=>[["Doe"], ["Doey"]], :foo=>[nil, ["hopfen"]]}
+    #
+    def changes
+      # `persisted_attrs` stores the current hash of attributes (retrieved
+      # from the Active Directory.
+      # persisted_attrs = self.class.select_dn(dn).attributes
+      # 
+      (@ldap_entry.attribute_names + @persisted_attrs.keys).uniq
         .each_with_object({}) do |key, memo|
-        unless @ldap_entry[key] == persisted_attrs[key]
-          memo[key] = [persisted_attrs[key], @ldap_entry[key]]
+        unless @ldap_entry[key] == @persisted_attrs[key]
+          memo[key] = [@persisted_attrs[key], @ldap_entry[key]]
         end
       end
     end
@@ -473,11 +486,52 @@ module AdDir
 
     def _update_entry
       if changed?
-        modify_params = changed_attributes
-          .each_with_object({}) { |(k, v), hsh| hsh[k] = v.last }
-        modify(modify_params) && reload
+        modify(changes) && reload
       else
         0
+      end
+    end
+
+    # Prepare an operations array containing all modifications.
+    # Each modification consists of three elements:
+    # `[ <operation>, <attr>, <value>]`
+    #
+    # @example Replace the value of `:sn` and add a new attribute `:foo`
+    #
+    #   operations = [
+    #     [ :replace, :sn, ["Doey"],
+    #     [ :add, :foo, ["bar"]
+    #     [ :delete, :fuz, ["nil"]
+    #   ]
+    #
+    # The operator for an attribute is defined by the presence of its values:
+    #
+    # ```
+    #   :replace  when old_val && new_val
+    #   :add      when old_val.nil?
+    #   :delete   when new_val.nil?
+    # ```
+    # @example Transform `changes` hash to ops array
+    #   changes_hsh = { 
+    #     sn: [["Doe"], ["Doey"]],        # :replace
+    #     foo: [nil, ["bar"]],            # :add
+    #     fuuz: [["bahrr"], nil],         # :delete
+    #   }
+    #   # =>
+    #   [
+    #     [:replace, :sn, ["Doey"]], 
+    #     [:add, :foo, ["bar"]], 
+    #     [:delete, :fuuz, nil]
+    #   ]
+    #
+    def prepare_modify_params(changes_hsh)
+      changes_hsh.each_with_object([]) do |(k, v), arr|
+        if v.compact.size > 1
+          op = :replace
+        else
+          op = v[0].nil? ? :add : :delete
+        end
+        arr << [op, k, v[1]]
       end
     end
 

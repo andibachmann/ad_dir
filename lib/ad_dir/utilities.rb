@@ -2,12 +2,18 @@
 module AdDir
   # Provides useful functions to de- and encode MS-specific binary fields
   # and timestamps.
+  # @see https://msdn.microsoft.com/en-us/library/windows/desktop/ms674984.aspx
+  #    Active Directory Schema General Overview 
+  #    (https://msdn.microsoft.com/en-us/library/windows/desktop/ms674984.aspx)
+  # @see https://msdn.microsoft.com/en-us/library/windows/desktop/ms675085.aspx
+  #    Active Directory Schema Definitions
+  #    (https://msdn.microsoft.com/en-us/library/windows/desktop/ms675085.aspx)
   module Utilities
     module_function
 
     # UserAccountControl Properties
     # URL: https://support.microsoft.com/en-us/kb/305144
-    # see also #uac_decode
+    # (for further details see {.uac_decode}) and {.compose_uac_code}).
     UAC_PROPERTIES = {
       SCRIPT:                             0x0001,
       ACCOUNTDISABLE:                     0x0002,
@@ -144,17 +150,12 @@ module AdDir
     end
     # rubocop:enable Metrics/LineLength
 
-    # Turns any given byte-arr into a hex string
-    # Ensures that any hex-value is represented by 2 digits
-    # (prepending single values with '0').
-    def bytes_to_hex(bin_arr)
-      bin_arr.collect { |b| b.to_i.to_s(16).rjust(2, '0') }.join
-    end
-
     # Decode the attribute 'useraccountcontrol'
     #
-    # Docu link: http://support.microsoft.com/en-us/kb/305144
-    # @example:
+    # @see http://support.microsoft.com/en-us/kb/305144 Microsoft How to 
+    #   use the UserAccountControl flags to manipulate user account properties
+    # 
+    # @example
     #   uac_decode(66048)
     #   # => {:NORMAL_ACCOUNT=>512, :DONT_EXPIRE_PASSWORD=>65536}
     #
@@ -183,10 +184,11 @@ module AdDir
 
     # rubocop:disable Metrics/LineLength
 
-    # Converts a plain text password into the ActiveDirectory ++:unicodePwd++
+    # Converts a plain text password into the ActiveDirectory **`:unicodePwd`**
     # format.
-    # ++:unicodePwd++ must be a double quoted password that in UNICODE format
-    # (i.e. 16bit unicode lower ending, AKA 'UTF_16LE').
+    #
+    # **`:unicodePwd`** must be a double quoted password that in UNICODE format
+    # (i.e. 16bit unicode lower ending, AKA '`UTF_16LE`').
     #
     # Attribute description:
     #   https://msdn.microsoft.com/en-us/library/cc220961.aspx
@@ -196,11 +198,11 @@ module AdDir
     #
     # Windows Example:
     #
-    #     ASCII "new":     0x6E 0x65 0x77
-    #     UTF-16 "new":    0x6E 0x00 0x65 0x00 0x77 0x00
-    #     UTF-16 "new"
-    #         with quotes: 0x22 0x00 0x6E 0x00 0x65 0x00 0x77 0x00 0x22 0x00
-    #
+    # ```
+    # ASCII   'new' :           0x6E      0x65      0x77
+    # UTF-16  'new' :           0x6E 0x00 0x65 0x00 0x77 0x00
+    # UTF-16 '"new"': 0x22 0x00 0x6E 0x00 0x65 0x00 0x77 0x00 0x22 0x00
+    # ```
     #
     # Examples:
     #

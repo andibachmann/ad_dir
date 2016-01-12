@@ -27,12 +27,6 @@ describe AdDir::Utilities do
     expect(described_class.decode_guid(objectguid)).to eq(objectguid_str)
   end
 
-  it '#bytes_to_hex([....]) => to hex' do
-    byte_arr = "\xEE\u0016\x8CsB\xF7\u0001K\xBB\xD7X\xACc\xD0\xE8\\".bytes
-    hex_string = 'ee168c7342f7014bbbd758ac63d0e85c'
-    expect(described_class.bytes_to_hex(byte_arr)).to eq(hex_string)
-  end
-
   it '#uac_decode(\'66050\') returns the properties' do
     code = '66050'
     result = described_class.uac_decode(code)
