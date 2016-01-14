@@ -355,6 +355,7 @@ module AdDir
       @ldap_entry = Net::LDAP::Entry.new(dn)
       attrs.each { |name, value| @ldap_entry[name] = value }
       @new_entry = true
+      @persisted_attrs = {}
       self
     end
 
@@ -411,23 +412,25 @@ module AdDir
 
     # Modify attributes given as hash
     #
-    # Example: Modify the ++:sn++ and ++:mail++ attributes.
-    #
+    # @example Modify the `:sn++` and `:mail` attributes.
     #   entry.modify({ sn:   "John Doe",
     #                  mail: "john.doe@foo.bar.com" })
     #
+    # @return [Boolean]
     def modify(attr_hash)
       ops     = prepare_modify_params(attr_hash)
       success = connection.modify(dn: dn, operations: ops)
       #
       if success
-        success && select_dn(dn)
+        reload!
       else
-        raise_ad_error connection.get_operation_result
+        false
       end
     end
 
-    # Save the entry
+    # Save the entry.
+    # If saving failed `false` is returned, otherwise `true`.
+    # @return [Boolean]
     def save
       create_or_update
     end
@@ -459,11 +462,16 @@ module AdDir
     #    # => {:sn=>[["Doe"], ["Doey"]], :foo=>[nil, ["hopfen"]]}
     #
     def changes
-      # `persisted_attrs` stores the current hash of attributes (retrieved
-      # from the Active Directory.
-      # persisted_attrs = self.class.select_dn(dn).attributes
-      # 
-      (@ldap_entry.attribute_names + @persisted_attrs.keys).uniq
+      #
+      # Algorithm:
+      #  1. Get a list of all relevant attributes
+      #   'set' operation union which returns a new array by joining
+      #   `@ldap_entry.attribute_names` with `persisted_attrs.keys`,
+      #   excluding any duplicates.
+      #  2. Loop and record for each key the 'old' (i.e. @persisted_attrs[key])
+      #     and the 'new' (i.e. @ldap_entry[<key>]) value but only if they
+      #     differ.
+      (@ldap_entry.attribute_names | @persisted_attrs.keys)
         .each_with_object({}) do |key, memo|
         unless @ldap_entry[key] == @persisted_attrs[key]
           memo[key] = [@persisted_attrs[key], @ldap_entry[key]]
@@ -476,8 +484,28 @@ module AdDir
       connection.delete(dn: dn)
     end
 
-    protected
+    # Reload the values from the ActiveDirectory and clear
+    # all current changes.
+    # @return `true` if successful
+    # @return `false` if reloading failed.
+    def reload!
+      success = self.class._select_dn(dn)
+      if success
+        @new_entry       = false
+        @ldap_entry      = success.first
+        @persisted_attrs = attributes.dup
+        true
+      else
+        false
+      end
+    end
 
+
+    private
+
+    # Destinguishes newly created (in memory) instance (e.g. via {#new})
+    # from a retrieved instance (e.g. via {#find}) and select the correct
+    # action (`_create_entry` vs. `_update_entry`)
     #
     def create_or_update
       result = new_entry? ? _create_entry : _update_entry
@@ -486,9 +514,9 @@ module AdDir
 
     def _update_entry
       if changed?
-        modify(changes) && reload
+        modify(changes)
       else
-        0
+        false
       end
     end
 
@@ -512,15 +540,15 @@ module AdDir
     #   :delete   when new_val.nil?
     # ```
     # @example Transform `changes` hash to ops array
-    #   changes_hsh = { 
+    #   changes_hsh = {
     #     sn: [["Doe"], ["Doey"]],        # :replace
     #     foo: [nil, ["bar"]],            # :add
     #     fuuz: [["bahrr"], nil],         # :delete
     #   }
     #   # =>
     #   [
-    #     [:replace, :sn, ["Doey"]], 
-    #     [:add, :foo, ["bar"]], 
+    #     [:replace, :sn, ["Doey"]],
+    #     [:add, :foo, ["bar"]],
     #     [:delete, :fuuz, nil]
     #   ]
     #
@@ -540,20 +568,9 @@ module AdDir
       attrs.delete(:dn)
       success = connection.add(dn: dn, attributes: attrs)
       if success
-        reload
+        reload!
       else
         success
-      end
-    end
-
-    # reload
-    def reload
-      success = self.class._select_dn(dn)
-      if success
-        @new_entry  = false
-        @ldap_entry = success.first
-      else
-        false
       end
     end
 
