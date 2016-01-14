@@ -3,7 +3,7 @@ module AdDir
   # Provides useful functions to de- and encode MS-specific binary fields
   # and timestamps.
   # @see https://msdn.microsoft.com/en-us/library/windows/desktop/ms674984.aspx
-  #    Active Directory Schema General Overview 
+  #    Active Directory Schema General Overview
   #    (https://msdn.microsoft.com/en-us/library/windows/desktop/ms674984.aspx)
   # @see https://msdn.microsoft.com/en-us/library/windows/desktop/ms675085.aspx
   #    Active Directory Schema Definitions
@@ -152,9 +152,9 @@ module AdDir
 
     # Decode the attribute 'useraccountcontrol'
     #
-    # @see http://support.microsoft.com/en-us/kb/305144 Microsoft How to 
+    # @see http://support.microsoft.com/en-us/kb/305144 Microsoft How to
     #   use the UserAccountControl flags to manipulate user account properties
-    # 
+    #
     # @example
     #   uac_decode(66048)
     #   # => {:NORMAL_ACCOUNT=>512, :DONT_EXPIRE_PASSWORD=>65536}

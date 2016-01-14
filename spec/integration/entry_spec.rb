@@ -92,6 +92,10 @@ describe AdDir::Entry do
       expect(entry.save).to be true
     end
 
+    it '#new(), then #changes()' do
+      
+    end
+
     context 'Trying to create an invalid ActiveDirectory entry' do
       it '#new() with dn, but no attributes' do
         entry = AdDir::Entry.new('cn=A B,ou=people,dc=test,dc=geo,dc=uzh,dc=ch')
