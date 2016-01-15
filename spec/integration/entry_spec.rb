@@ -14,7 +14,7 @@ describe AdDir::Entry do
       end
 
       it '#find_by_cn(\'Doe\')' do
-        expect(AdDir::Entry.find_by_cn('*Doe*').cn.first).to match(/Doe/)
+        expect(AdDir::Entry.find_by_cn('*Doe*').cn).to match(/Doe/)
       end
     end
 
@@ -27,16 +27,16 @@ describe AdDir::Entry do
 
       context 'with Hash condition (only equality, joined by &&)' do
         it '{ sn: \'Doe\' }' do
-          expect(AdDir::Entry.where(sn: 'Doe').first.sn.first).to eq('Doe')
+          expect(AdDir::Entry.where(sn: 'Doe').first.sn).to eq('Doe')
         end
 
         it '{ sn: \'doe\' }' do
-          expect(described_class.where(sn: 'doe').first.sn.first).to eq('Doe')
+          expect(described_class.where(sn: 'doe').first.sn).to eq('Doe')
         end
 
         it '{ sn: \'doe\', objectclass: \'user\'}' do
           opts = { sn: 'doe', objectclass: 'user' }
-          expect(described_class.where(opts).first.sn.first).to eq('Doe')
+          expect(described_class.where(opts).first.sn).to eq('Doe')
         end
       end
 
@@ -48,22 +48,22 @@ describe AdDir::Entry do
         it '(sn=doe)' do
           #result = described_class.where(ldap_filter)
           result = described_class.where(ldap_filter)
-          expect(result.first.sn.first).to eq('Doe')
+          expect(result.first.sn).to eq('Doe')
         end
 
         it '(&(sn=doe)(objectclass=user))' do
           result = described_class.where(ldap_filter)
-          expect(result.first.sn.first).to eq('Doe')
+          expect(result.first.sn).to eq('Doe')
         end
 
         it '(|(sn=doe)(mail=*doe*))' do
           result = described_class.where(ldap_filter)
-          expect(result.first.sn.first).to eq('Doe')
+          expect(result.first.sn).to eq('Doe')
         end
 
         it '(&(|(sn=doe)(mail=*doe*))(objectclass=user))' do
           result = described_class.where(ldap_filter)
-          expect(result.first.sn.first).to eq('Doe')
+          expect(result.first.sn).to eq('Doe')
         end
       end
     end
@@ -93,7 +93,6 @@ describe AdDir::Entry do
     end
 
     it '#new(), then #changes()' do
-      
     end
 
     context 'Trying to create an invalid ActiveDirectory entry' do
@@ -150,7 +149,7 @@ describe AdDir::Entry do
       entry = AdDir::Entry.find('hmeier')
       entry[:sn] = 'Müller'
       entry.save
-      expect(AdDir::Entry.find('hmeier')[:sn]).to eq('Müller')
+      expect(AdDir::Entry.find('hmeier')[:sn]).to eq(['Müller'])
     end
   end
 end

@@ -50,8 +50,8 @@ module AdDir
 
     # Names of all derived attributes
     # @return [Array]
-    def derived_attributes
-      Module.nesting.first.public_instance_methods
+    def derived_attribute_names
+      Module.nesting.first.public_instance_methods - [:derived_attribute_names]
     end
   end
 end

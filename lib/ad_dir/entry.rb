@@ -10,6 +10,55 @@ module AdDir
   # Entry is basically a wrapper of Net::LDAP::Entry with some additional
   # class methods that provide ActiveRecord-like finders.
   #
+  # ## Design Overview
+  # {Entry} stores the original `Net::LDAP::Entry` object in an
+  # instance variable **`@ldap_entry`**. When the entry is fetched
+  # from the ActiveDirectory a snapshot of the entry's persisted
+  # attributes and its values is stored in a hash
+  # **`@persisted_attrs`** (using `#dup`!).
+  #
+  # Whenever an attribute is changed the method {#changes} calculates
+  # the difference between the currrent values and the values in
+  # `@persisted_attrs`.
+  #
+  # ## Attributes
+  # List all attribute names:
+  #
+  # ```
+  #   user.attribute_names
+  #   => [:dn, :objectclass, :cn, :sn, :givenname, :distinguishedname,
+  #   :instancetype, :whencreated, :whenchanged, :displayname, :usncreated,
+  #   :usnchanged, :directreports, :name, :objectguid, :useraccountcontrol,
+  #   :badpwdcount, :codepage, :countrycode, :badpasswordtime, :lastlogoff,
+  #   :lastlogon, :pwdlastset, :primarygroupid, :objectsid, :accountexpires,
+  #   :logoncount, :samaccountname, :samaccounttype, :lockouttime,
+  #   :objectcategory, :dscorepropagationdata,
+  #   :msds-supportedencryptiontypes]
+  # ```
+  #
+  # To get a hash of all attribute names and their values
+  #
+  # ```
+  #   user.attributes
+  # ```
+  #
+  # ### Retrieving Attribute Values
+  # Values of attributes can be accessed in two ways:
+  #
+  # ```
+  #   entry.sn
+  #   # => "Doe"
+  #
+  #   # NOT RECOMMENDED!
+  #   entry[:sn]
+  #   # => ["Doe"]
+  #
+  # ```
+  # As a rule of thumbs use
+  #  * **`#attr_name`** to get the values ready-to-use without wrapping array.
+  #  * **`[:attr_name]`** only if you want to retrieve the original
+  #     `Net::LDAP::Entry` values.
+  #
   # ## Create
   # * Create an entry by specifying a DN and providing an conformant set
   # of valid attributes:
@@ -26,10 +75,10 @@ module AdDir
   #
   # ```
   # jdoe = AdDir::Entry.new('cn=John Doe,ou=mgrs,dc=my,dc=nice,dc=com')
-  # jdoe[:sn] = 'Doe'
-  # jdoe[:givenname] = 'John'
-  # jdoe[:objectclass] = %w(top person organizationalPerson user)
-  # jdoe[:mail] = 'john.doe@my.nice.com'
+  # jdoe.sn = 'Doe'
+  # jdoe.givenname = 'John'
+  # jdoe.objectclass = %w(top person organizationalPerson user)
+  # jdoe.mail = 'john.doe@my.nice.com'
   # jdoe.new_entry?
   # # => true
   # jdoe.save
@@ -132,7 +181,7 @@ module AdDir
     #       self.tree_base = 'ou=DevOps,ou=taka tuka,dc=my,dc=company,dc=net'
     #     end
     #
-    # This limits the ++:base++ DN when doing search operations on the AD.
+    # This limits the `:base` DN when doing search operations on the AD.
     def self.tree_base=(value)
       @tree_base = value
     end
@@ -347,7 +396,7 @@ module AdDir
     # Instance Methods
 
     # We do not provide a constructor, but use the standard one
-    # of ++Net::LDAP::Entry++
+    # of `Net::LDAP::Entry`
     #
     #     Net::LDAP::Entry.new(dn=nil)
     def initialize(dn = nil, attrs = {})
@@ -380,7 +429,15 @@ module AdDir
     private :respond_to_missing?
 
     def method_missing(method_sym, *args, &block)
-      if @ldap_entry.respond_to?(method_sym)
+      # Distinguish `method_sym`
+      if method_sym.to_s.end_with?('=')
+        # Setter, e.g.  `:email=`
+        @ldap_entry[method_sym] = *args
+      elsif @ldap_entry.attribute_names.include?(method_sym)
+        # Getter, i.e. a valid attribute name ( e.g.  `:email`)
+        get_value(method_sym)
+      elsif @ldap_entry.respond_to?(method_sym)
+        # any Net::LDAP::Entry instance method
         @ldap_entry.__send__(method_sym, *args)
       else
         super(method_sym, *args, &block)
@@ -393,26 +450,40 @@ module AdDir
     # Attribute values are always wrapped in an array, although most
     # attributes are singled-valued.
     #
-    def [](name)
+    def get_value(name)
       val_arr = @ldap_entry[name]
       return val_arr if val_arr.empty?
       #
       val_arr.size == 1 ? val_arr.first : val_arr
     end
 
+    # Get the value of the attribute `attr`
+    #
+    # @note This is a convenience method to speed up value retrieval, i.e.
+    #   bypassing the `method_missing` way.
+    #   The value returned is retrieved from the underlying `Net::LDAP:Entry`
+    #   object and thus always wrapped in an `Array`.
+    #
+    # @param attr_name [String,Symbol] The name of the attribute
+    # @return [Array<String>] value of attribute `attr`
+    def [](attr_name)
+      @ldap_entry[attr_name]
+    end
+
     # Set the the attribute ''name'' to the value ''value''.
     # If the attribute ''name'' exists its value is overwritten.
     # If no attribute ''name'' exists a new attribute is created with the
     # provided value.
-    # @param name[Symbol] attribute name
+    # @param name[String,Symbol] attribute name
     # @param value value of attribute
+    # @return value of attribute
     def []=(name, value)
       @ldap_entry[name] = value
     end
 
     # Modify attributes given as hash
     #
-    # @example Modify the `:sn++` and `:mail` attributes.
+    # @example Modify the `:sn` and `:mail` attributes.
     #   entry.modify({ sn:   "John Doe",
     #                  mail: "john.doe@foo.bar.com" })
     #
@@ -471,6 +542,7 @@ module AdDir
       #  2. Loop and record for each key the 'old' (i.e. @persisted_attrs[key])
       #     and the 'new' (i.e. @ldap_entry[<key>]) value but only if they
       #     differ.
+      return {} if @persisted_attrs.empty?
       (@ldap_entry.attribute_names | @persisted_attrs.keys)
         .each_with_object({}) do |key, memo|
         unless @ldap_entry[key] == @persisted_attrs[key]
@@ -499,7 +571,6 @@ module AdDir
         false
       end
     end
-
 
     private
 

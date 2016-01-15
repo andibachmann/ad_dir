@@ -33,7 +33,7 @@ describe AdDir::Entry do
 
   describe 'basic functionalities' do
     it '#cn returns the value of the \'cn\'-Attribute' do
-      expect(testuser.cn.first).to be_kind_of(String)
+      expect(testuser.cn).to be_kind_of(String)
     end
   end
 
@@ -89,16 +89,37 @@ describe AdDir::Entry do
     it '#[:key] = val' do
       new_val   = 'other value'
       user[:sn] = new_val
-      expect(user[:sn]).to eq(new_val)
+      expect(user[:sn]).to eq([new_val])
     end
 
-    it 'should fail' do
-      expect(user[:sn]).to eq('Test-Lastname')
+    it '#sn = val' do
+      user.sn = 'bling'
+      expect(user.sn).to eq('bling')
     end
 
-    it '#[:sn]=(value)' do
-      user[:sn] = 'bling'
-      expect(user[:sn]).to eq('bling')
+    context 'when nothing was changed' do
+      it '#changes  => {}' do
+        expect(user.changes).to be_empty
+      end
+
+      it '#changed? => false' do
+        expect(user.changed?).to be_falsy
+      end
+    end
+
+    context 'when object was changed' do
+      it '#changes  => {:sn=>[["Test-Lastname"], ["Ha, changed!"]]}' do
+        new_val = 'Ha, changed!'
+        res_hsh = {sn: [[testuser.sn], [new_val]]}
+        user.sn = new_val
+        expect(user.changes).not_to be_empty
+        expect(user.changes).to eq(res_hsh)
+      end
+
+      it '#changed?  => true' do
+        user.sn = 'Ha, changed!'
+        expect(user.changed?).to be_truthy
+      end
     end
   end
 end
