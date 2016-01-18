@@ -144,6 +144,11 @@ module AdDir
     # some condition.
     FIND_METHOD_REGEXP = /\Afind(_by_(\w+))?\Z/
 
+    # Define which category a record belongs to
+    # Active Directory knows: `person`, `computer`, `group`
+    # 
+    @objectcategory = ''
+
     # ---------------------------------------------------------- CLASS Methods
 
     # Returns the ActiveDirectory's connection
@@ -169,7 +174,7 @@ module AdDir
 
     # @return [Array] all objects
     def self.all
-      search(base: @tree_base).collect do |e|
+      search(base: @tree_base, filter: category_filter).collect do |e|
         from_ldap_entry(e)
       end
     end
@@ -262,10 +267,20 @@ module AdDir
       args = {
         base:   dn,
         scope:  Net::LDAP::SearchScope_BaseObject,
-        filter: Net::LDAP::Filter.present('objectclass')
+        filter: category_filter,
       }
       connection.search(args)
     end
+
+    # Category Filter
+    # Use this to efficiently select entries from the Active Directory
+    # The filter relays on the class instance variable @objectcategory
+    def self.category_filter
+      @category_filter ||= 
+        @objectcategory.empty? ? Net::LDAP::Filter.eq('objectcategory', '*') :
+        Net::LDAP::Filter.eq('objectcategory', @objectcategory)
+    end
+
 
     # Search and other utilities
     #
@@ -282,7 +297,7 @@ module AdDir
     def self.my_find(method_sym, pattern)
       # evaluate the method name
       attr    = evaluate_finder_method(method_sym)
-      filter  = Net::LDAP::Filter.eq(attr, pattern)
+      filter  = category_filter & Net::LDAP::Filter.eq(attr, pattern)
       records = search(filter: filter).map do |e|
         entry = from_ldap_entry(e)
         entry.instance_variable_set('@new_entry', false)
