@@ -5,7 +5,7 @@ require 'yaml'
 AdDir.establish_connection(YAML.load_file('spec/ad_test.yaml'))
 
 describe AdDir::Entry do
-  context 'Finder functionality' do
+  context 'Finder functionality (Integration)' do
     let(:testuser) { load_data && @testuser }
 
     context '.find()' do
@@ -30,7 +30,7 @@ describe AdDir::Entry do
           expect(AdDir::Entry.where(sn: 'Doe').first.sn).to eq('Doe')
         end
 
-        it '{ sn: \'doe\' }' do
+        it '{ sn: \'doe\' } (case insensitive)' do
           expect(described_class.where(sn: 'doe').first.sn).to eq('Doe')
         end
 
@@ -69,7 +69,7 @@ describe AdDir::Entry do
     end
   end
 
-  context 'Adding entries to AD' do
+  context 'Adding entries to AD (Integration)' do
     after(:example) do
       # Delete the entry 'hmeier', if it exists
       testentry = AdDir::Entry.find('hmeier')
@@ -134,7 +134,7 @@ describe AdDir::Entry do
     testentry.save
   end
 
-  context 'when modifying entries' do
+  context 'when modifying entries (Integration)' do
     after(:context) do
       # Delete the entry 'hmeier', if it exists
       testentry = AdDir::Entry.find('hmeier')

@@ -31,12 +31,6 @@ describe AdDir::Entry do
   let(:testuser) { load_data && @testuser }
   let(:entry_klass) { class_double('AdDir::Entry') }
 
-  describe 'basic functionalities' do
-    it '#cn returns the value of the \'cn\'-Attribute' do
-      expect(testuser.cn).to be_kind_of(String)
-    end
-  end
-
   context 'finder functionality' do
     it '#evaluate_finder_method(:find_by_some_attribute) \
        returns \'some_attribute\'' do
