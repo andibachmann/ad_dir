@@ -586,7 +586,33 @@ module AdDir
         false
       end
     end
-
+    
+    # Returns the cotent of the record as a nicely formatted string.
+    # (copied that from ActiveRecord)
+    # @see {ActiveRecord::Base#inspect}
+    def inspect
+      inspection = attribute_names.collect { |k|
+        "#{k}: #{attribute_for_inspect(get_value(k))}"
+      }.compact.join(", ")
+      "#<#{self.class} #{inspection}>"    
+    end
+    
+    # copied that from activerecord method
+    #
+    # @see {ActiveRecord::AttributeMethods#attribute_for_inspect}
+    def attribute_for_inspect(value)
+      if value.is_a?(String) && value.length > 50
+        "#{value[0, 50]}...".inspect
+      elsif value.is_a?(Date) || value.is_a?(Time)
+        %("#{value.to_s(:db)}")
+      elsif value.is_a?(Array) && value.size > 10
+        inspected = value.first(10).inspect
+        %(#{inspected[0...-1]}, ...])
+      else
+        value.inspect
+      end
+    end
+    
     private
 
     # Destinguishes newly created (in memory) instance (e.g. via {#new})
