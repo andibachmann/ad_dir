@@ -4,9 +4,6 @@
 require 'ad_dir/derived_attributes'
 
 module AdDir
-  # Generic Error for AdDir
-  class AdError < StandardError; end
-
   # Entry is basically a wrapper of Net::LDAP::Entry with some additional
   # class methods that provide ActiveRecord-like finders.
   #
@@ -146,7 +143,7 @@ module AdDir
 
     # Define which category a record belongs to
     # Active Directory knows: `person`, `computer`, `group`
-    # 
+    #
     @objectcategory = ''
 
     # ---------------------------------------------------------- CLASS Methods
@@ -162,13 +159,7 @@ module AdDir
     def self.search(args = {})
       args[:base] ||= @tree_base
       args[:scope] ||= Net::LDAP::SearchScope_WholeSubtree
-
-      success = connection.search(args)
-      if success
-        success
-      else
-        fail AdError, connection.get_operation_result.error_message
-      end
+      connection.search(args)
     end
     private_class_method :search
 
@@ -267,7 +258,7 @@ module AdDir
       args = {
         base:   dn,
         scope:  Net::LDAP::SearchScope_BaseObject,
-        filter: category_filter,
+        filter: category_filter
       }
       connection.search(args)
     end
@@ -276,11 +267,10 @@ module AdDir
     # Use this to efficiently select entries from the Active Directory
     # The filter relays on the class instance variable @objectcategory
     def self.category_filter
-      @category_filter ||= 
-        @objectcategory.empty? ? Net::LDAP::Filter.eq('objectcategory', '*') :
-        Net::LDAP::Filter.eq('objectcategory', @objectcategory)
+      return @category_filter if @category_filter
+      cat = @objectcategory.empty? ? '*' : @objectcategory
+      @category_filter = Net::LDAP::Filter.eq('objectcategory', cat)
     end
-
 
     # Search and other utilities
     #
@@ -586,23 +576,25 @@ module AdDir
         false
       end
     end
-    
+
     # Returns the cotent of the record as a nicely formatted string.
     # (copied that from ActiveRecord)
     # @see {ActiveRecord::Base#inspect}
     def inspect
-      inspection = attribute_names.collect { |k|
+      inspection = attribute_names.collect do |k|
         "#{k}: #{attribute_for_inspect(get_value(k))}"
-      }.compact.join(", ")
-      "#<#{self.class} #{inspection}>"    
+      end.compact.join(', ')
+      "#<#{self.class} #{inspection}>"
     end
-    
+
     # copied that from activerecord method
     #
     # @see {ActiveRecord::AttributeMethods#attribute_for_inspect}
     def attribute_for_inspect(value)
-      if value.is_a?(String) && value.length > 50
-        "#{value[0, 50]}...".inspect
+      # if value.is_a?(String) && value.length > 50
+      #   "#{value[0, 50]}...".inspect
+      if value.is_a?(String)
+        string_inspect(value, 50)
       elsif value.is_a?(Date) || value.is_a?(Time)
         %("#{value.to_s(:db)}")
       elsif value.is_a?(Array) && value.size > 10
@@ -612,7 +604,13 @@ module AdDir
         value.inspect
       end
     end
-    
+
+    # Shorten long strings for inspection
+    def string_inspect(str, len)
+      str = "#{str[0, len]}..." if str.length > len
+      str.inspect
+    end
+
     private
 
     # Destinguishes newly created (in memory) instance (e.g. via {#new})
@@ -684,13 +682,6 @@ module AdDir
       else
         success
       end
-    end
-
-    def raise_ad_error(error)
-      exception = AdError.new(
-        "LDAP operation on AD failed: #{error.message} (code: #{error.code})")
-      exception.set_backtrace(caller[0..-2])
-      fail exception
     end
   end
 end
