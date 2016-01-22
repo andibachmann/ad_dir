@@ -437,14 +437,17 @@ module AdDir
       # Distinguish `method_sym`
       if method_sym.to_s.end_with?('=')
         # Setter, e.g.  `:email=`
+        warn "entry#method_missing:         @ldap_entry[method_sym] = args"
         @ldap_entry[method_sym] = args
       elsif @ldap_entry.attribute_names.include?(method_sym)
         # Getter, i.e. a valid attribute name ( e.g.  `:email`)
         get_value(method_sym)
       elsif @ldap_entry.respond_to?(method_sym)
         # any Net::LDAP::Entry instance method
-        @ldap_entry.__send__(method_sym, *args)
+        warn "entry#method_missing: @ldap_entry.__send__(method_sym, args)"
+        @ldap_entry.__send__(method_sym, args)
       else
+        warn "giving over to super: super(method_sym, *args, &block)"
         super(method_sym, *args, &block)
       end
     end
