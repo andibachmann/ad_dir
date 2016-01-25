@@ -86,6 +86,18 @@ describe AdDir::Entry do
       expect(user[:sn]).to eq([new_val])
     end
 
+    it '#objectclass = %w{user inetOrgPerson} (assign [])' do
+      new_val = %w{top person organizationalPerson user}
+      user.objectclass = new_val
+      expect(user[:objectclass]).to eq(new_val)
+    end
+
+    it '#[:objectclass] = %w{user inetOrgPerson} (assign [])' do
+      new_val = %w{organizationalPerson user}
+      user[:objectclass] = new_val
+      expect(user[:objectclass]).to eq(new_val)
+    end
+
     it '#sn = val' do
       user.sn = 'bling'
       expect(user.sn).to eq('bling')

@@ -436,9 +436,8 @@ module AdDir
     def method_missing(method_sym, *args, &block)
       # Distinguish `method_sym`
       if method_sym.to_s.end_with?('=')
-        # Setter, e.g.  `:email=`
-        warn "entry#method_missing:         @ldap_entry[method_sym] = args"
-        @ldap_entry[method_sym] = args
+         # Setter, e.g.  `:email=`
+        @ldap_entry[method_sym] = args.first
       elsif @ldap_entry.attribute_names.include?(method_sym)
         # Getter, i.e. a valid attribute name ( e.g.  `:email`)
         get_value(method_sym)
