@@ -47,8 +47,20 @@ end
 
 require 'rspec/core/rake_task'
 RSpec::Core::RakeTask.new
-
 task default: :spec
+
+namespace :spec do
+  desc 'base'
+  task base: :spec  do
+   # Rake::Task[:spec].execute
+  end
+
+  desc 'integration'
+  task :integration do
+    ENV['INTEGRATION'] = '1'
+    Rake::Task[:spec].execute
+  end
+end
 
 desc 'Publish gem to the GIUZ gemserver'
 task :pushgiuz do

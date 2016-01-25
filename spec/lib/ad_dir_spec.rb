@@ -6,7 +6,7 @@ describe AdDir do
     expect(subject.const_get('VERSION')).not_to be_empty
   end
 
-  context 'running ActiveDirectory' do
+  context 'running ActiveDirectory', integration: true do
     host     = 'magma.test.geo.uzh.ch'
     base     = 'dc=test,dc=geo,dc=uzh,dc=ch'
 
