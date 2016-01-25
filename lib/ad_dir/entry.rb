@@ -442,8 +442,9 @@ module AdDir
         # Getter, i.e. a valid attribute name ( e.g.  `:email`)
         get_value(method_sym)
       elsif @ldap_entry.respond_to?(method_sym)
-        # any Net::LDAP::Entry instance method
-        @ldap_entry.__send__(method_sym, args)
+        # any other Net::LDAP::Entry instance method 
+        # (e.g. `:attribute_names`)
+        @ldap_entry.__send__(method_sym, *args)
       else
         super
       end
