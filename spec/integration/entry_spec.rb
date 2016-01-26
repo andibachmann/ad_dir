@@ -2,7 +2,7 @@ require 'spec_helper'
 require 'ad_dir'
 require 'yaml'
 
-describe AdDir::Entry, integration: false do
+describe AdDir::Entry, integration: true do
   # open a connection to the test AD
   # @see `spec/spec_helper.rb`
   integration_setup

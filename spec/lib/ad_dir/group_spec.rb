@@ -39,7 +39,7 @@ describe AdDir::Group do
     end
   end
   
-  context 'when not Primary Group' do
+  fcontext 'when not Primary Group' do
     it '#primary_group? to be false' do
       expect(group.primary_group?).to be_falsy
     end

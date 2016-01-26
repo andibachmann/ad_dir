@@ -49,8 +49,8 @@ task default: :spec
 
 namespace :spec do
   desc 'base'
-  task base: :spec  do
-   # Rake::Task[:spec].execute
+  task :base do
+    Rake::Task[:spec].execute
   end
 
   desc 'integration'
