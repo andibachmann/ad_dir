@@ -1,5 +1,6 @@
 require 'spec_helper'
-require 'ad_dir'
+#require 'ad_dir'
+#require 'fake_user_helper'
 
 describe AdDir::Entry do
   context 'Class Functions' do
@@ -28,8 +29,8 @@ describe AdDir::Entry do
   end
 
   # define a testuser
-  let(:testuser) { load_data && @testuser }
   let(:entry_klass) { class_double('AdDir::Entry') }
+  let(:testuser) { get_my_test('AdDir::Entry', :testuser) }
 
   context 'finder functionality' do
     it '#evaluate_finder_method(:find_by_some_attribute) \

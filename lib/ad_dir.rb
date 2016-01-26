@@ -28,7 +28,7 @@ module AdDir
     # always run with encrypted connections, the following options are preset:
     #
     #     port: 636
-    #     encryption: :simple_tls
+    #     encryption: { method: :simple_tls }
     #     auth_method: :simple
     #
     # (check out the `net-ldap` API for details).
@@ -43,7 +43,8 @@ module AdDir
     def establish_connection(host:, username:, password:, base:)
       @connection = Net::LDAP.new(
         host: host, base: base,
-        encryption: :simple_tls, port: 636,
+        encryption: { method: :simple_tls },
+        port: 636,
         auth: {
           username: username, password: password,
           method: :simple }
@@ -70,3 +71,6 @@ end
 
 require 'ad_dir/utilities'
 require 'ad_dir/entry'
+require 'ad_dir/common_user_attributes'
+require 'ad_dir/user'
+require 'ad_dir/group'

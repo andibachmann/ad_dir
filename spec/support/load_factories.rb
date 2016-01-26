@@ -13,10 +13,12 @@
 #
 def load_data
   examples = Dir.glob('spec/support/*.ldif')
-  examples.each do |ex|
+  res = examples.each_with_object({}) do |ex,hsh|
     _klass, name = File.basename(ex, '.ldif').split('_')
     nete =  Net::LDAP::Entry.from_single_ldif_string(File.read(ex))
     entry = AdDir::Entry.from_ldap_entry(nete)
     instance_variable_set("@#{name}", entry)
+    hsh[name.to_sym] = nete
   end
 end
+

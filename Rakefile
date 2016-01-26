@@ -1,26 +1,24 @@
-# encoding: utf-8
+require 'bundler/gem_tasks'
 
-require 'rubygems'
+# begin
+#   require 'bundler'
+# rescue LoadError => e
+#   warn e.message
+#   warn 'Run `gem install bundler` to install Bundler.'
+#   exit(-1)
+# end
 
-begin
-  require 'bundler'
-rescue LoadError => e
-  warn e.message
-  warn 'Run `gem install bundler` to install Bundler.'
-  exit(-1)
-end
+# begin
+#   Bundler.setup(:development)
+# rescue Bundler::BundlerError => e
+#   warn e.message
+#   warn 'Run `bundle install` to install missing gems.'
+#   exit e.status_code
+# end
 
-begin
-  Bundler.setup(:development)
-rescue Bundler::BundlerError => e
-  warn e.message
-  warn 'Run `bundle install` to install missing gems.'
-  exit e.status_code
-end
-
-require 'rake'
-require 'rubygems/tasks'
-Gem::Tasks.new
+# require 'rake'
+# require 'rubygems/tasks'
+# Gem::Tasks.new
 
 require 'rubocop/rake_task'
 RuboCop::RakeTask.new
@@ -94,4 +92,18 @@ task :rebuild do
   # and move the result to the PKG_DIR
   builder = Gem::Builder.new(project.gemspec)
   mv builder.build, project.class::PKG_DIR
+end
+
+
+desc 'console_test'
+task :console_test do
+  $:.unshift('spec/')
+  $:.unshift('lib/')
+  require 'irb'
+  require 'irb/completion'
+  require 'ad_dir' 
+  require 'spec_helper'
+  require 'real_dir_helper'
+  ARGV.clear
+  IRB.start
 end

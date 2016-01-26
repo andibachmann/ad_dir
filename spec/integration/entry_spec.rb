@@ -2,10 +2,11 @@ require 'spec_helper'
 require 'ad_dir'
 require 'yaml'
 
-# AdDir.establish_connection(YAML.load_file('spec/ad_test.yaml'))
+describe AdDir::Entry, integration: false do
+  # open a connection to the test AD
+  # @see `spec/spec_helper.rb`
+  integration_setup
 
-
-describe AdDir::Entry, integration: true do
   context 'Finder functionality (Integration)' do
     let(:testuser) { load_data && @testuser }
 
@@ -70,7 +71,7 @@ describe AdDir::Entry, integration: true do
     end
   end
 
-  context 'Adding entries to AD (Integration)', integration: true do
+  context 'Adding entries to AD (Integration)' do
     after(:example) do
       # Delete the entry 'hmeier', if it exists
       testentry = AdDir::Entry.find('hmeier')
@@ -85,7 +86,7 @@ describe AdDir::Entry, integration: true do
         samaccountname: 'hmeier' }
     }
 
-    it '#new(), then #save()', integration: true do
+    it '#new(), then #save()' do
       #
       base = 'ou=people,dc=test,dc=geo,dc=uzh,dc=ch'
       dn   = "cn=#{minimal_attrs[:givenname]} #{minimal_attrs[:sn]},#{base}"
@@ -97,13 +98,13 @@ describe AdDir::Entry, integration: true do
     end
 
     context 'Trying to create an invalid ActiveDirectory entry' do
-      it '#new() with dn, but no attributes', integration: true do
+      it '#new() with dn, but no attributes' do
         entry = AdDir::Entry.new('cn=A B,ou=people,dc=test,dc=geo,dc=uzh,dc=ch')
         expect(entry.save).to be false
         expect(AdDir.last_op.message).to match(/Violation/)
       end
 
-      it 'create an already existing entry', integration: true do
+      it 'create an already existing entry' do
         base   = 'ou=people,dc=test,dc=geo,dc=uzh,dc=ch'
         dn     = "cn=#{minimal_attrs[:givenname]} #{minimal_attrs[:sn]},#{base}"
         entry1 = AdDir::Entry.new(dn, minimal_attrs)

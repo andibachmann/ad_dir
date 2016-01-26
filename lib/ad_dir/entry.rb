@@ -489,13 +489,13 @@ module AdDir
 
     # Modify attributes given as hash
     #
-    # @example Modify the `:sn` and `:mail` attributes.
-    #   entry.modify({ sn:   "John Doe",
-    #                  mail: "john.doe@foo.bar.com" })
+    # @example Modify the `:sn` (change) and `:foo` (add) attributes.
+    #   entry.modify({:sn=>[["Doe"], ["Doey"]], 
+    #                 :foo=>[nil, ["hopfen"]]})
     #
     # @return [Boolean]
-    def modify(attr_hash)
-      ops     = prepare_modify_params(attr_hash)
+    def modify(changes_hash)
+      ops     = prepare_modify_params(changes_hash)
       success = connection.modify(dn: dn, operations: ops)
       #
       if success
@@ -576,6 +576,11 @@ module AdDir
       else
         false
       end
+    end
+
+    # find out if attribute is present
+    def attribute_present?(name)
+      @ldap_entry.attribute_names.include?(name)
     end
 
     # Returns the cotent of the record as a nicely formatted string.
