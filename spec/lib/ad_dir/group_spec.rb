@@ -39,13 +39,14 @@ describe AdDir::Group do
     end
   end
   
-  fcontext 'when not Primary Group' do
+  context 'when not Primary Group' do
     it '#primary_group? to be false' do
+      expect(group).to receive(:primary_user).and_return(nil)
       expect(group.primary_group?).to be_falsy
     end
     
     it '#primary_user to be nil' do
-      AdDir::User.tree_base = 'ou=people,dc=test,dc=geo,dc=uzh,dc=ch'
+      expect(group).to receive(:primary_user).and_return(nil)
       expect(group.primary_user).to be_nil
     end
   end
@@ -67,13 +68,16 @@ describe AdDir::Group do
       nu_dn = 'cn=hansi hintersehr,ou=people,dc=d,dc=geo,dc=geo,dc=uzh,dc=ch'
       nu    = instance_double('AdDir::User', dn: nu_dn)
       allow(group).to receive(:modify).and_return(group.members << nu_dn)
-      allow(group).to receive(:members).and_return(group.members << nu_dn)
+      allow(group).to receive(:users).and_return([nu])
       #
       group.add_user(nu)
       expect(group.members).to include(nu_dn)
     end
 
     it '#remove_user' do
+      allow(group).to receive(:modify).and_return([])
+      allow(group).to receive(:users).and_return([])
+      # 
       group.remove_user(testuser)
       expect(group.members).to_not include(testuser.dn)
     end

@@ -66,6 +66,8 @@ describe AdDir::User do
     end
 
     it '#remove_group(AdDir::Group)' do
+      allow(group).to receive(:remove_user).with(tuser).and_return(true)
+      allow(tuser).to receive(:groups).and_return([])
       tuser.remove_group(group)
       expect(tuser.memberof).to_not include(group.dn)
     end

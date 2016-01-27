@@ -11,7 +11,7 @@
 # Note: The array `ATTRS` must be maintained! all 'attribute' calls must
 #   be present.
 class AdDir::Entry
-  ATTRS = %w[name dn id lastname]
+  ATTRS = %w[name dn id find_by_primarygroupid]
   def self.define_attr_meths
     ATTRS.each do |attr|
       define_method(attr) { send(:get_value, attr) }
