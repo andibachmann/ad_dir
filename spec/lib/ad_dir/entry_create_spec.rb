@@ -21,7 +21,7 @@ describe AdDir::Entry do
     nete         =  Net::LDAP::Entry.from_single_ldif_string(ldif_example)
     expect(AdDir::Entry.from_ldap_entry(nete)).to be_kind_of(AdDir::Entry)
   end
-  
+
   context 'when new, unpersisted object' do
     let (:user) { AdDir::Entry.new('cn=John Doe,ou=mgrs,dc=my,dc=nice,dc=com') }
     it '#new_entry?' do
@@ -32,7 +32,7 @@ describe AdDir::Entry do
       user.sn = 'Doe'
       expect(user.changes).to be_empty
     end
-    
+
     it '#sn = "Doe"' do
       user.sn = 'Doe'
       expect(user.sn).to eq('Doe')

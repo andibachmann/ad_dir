@@ -436,13 +436,13 @@ module AdDir
     def method_missing(method_sym, *args, &block)
       # Distinguish `method_sym` to speed up attribute setting and getting
       if method_sym.to_s.end_with?('=')
-         # Setter, e.g.  `:email=`
+        # Setter, e.g.  `:email=`
         @ldap_entry[method_sym] = args.first
       elsif @ldap_entry.attribute_names.include?(method_sym)
         # Getter, i.e. a valid attribute name ( e.g.  `:email`)
         get_value(method_sym)
       elsif @ldap_entry.respond_to?(method_sym)
-        # any other Net::LDAP::Entry instance method 
+        # any other Net::LDAP::Entry instance method
         # (e.g. `:attribute_names`)
         @ldap_entry.__send__(method_sym, *args)
       else
@@ -490,7 +490,7 @@ module AdDir
     # Modify attributes given as hash
     #
     # @example Modify the `:sn` (change) and `:foo` (add) attributes.
-    #   entry.modify({:sn=>[["Doe"], ["Doey"]], 
+    #   entry.modify({:sn=>[["Doe"], ["Doey"]],
     #                 :foo=>[nil, ["hopfen"]]})
     #
     # @return [Boolean]

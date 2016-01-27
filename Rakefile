@@ -94,14 +94,13 @@ task :rebuild do
   mv builder.build, project.class::PKG_DIR
 end
 
-
 desc 'console_test'
 task :console_test do
-  $:.unshift('spec/')
-  $:.unshift('lib/')
+  $LOAD_PATH.unshift('spec/')
+  $LOAD_PATH.unshift('lib/')
   require 'irb'
   require 'irb/completion'
-  require 'ad_dir' 
+  require 'ad_dir'
   require 'spec_helper'
   require 'real_dir_helper'
   ARGV.clear

@@ -38,25 +38,25 @@ describe AdDir::Group do
       expect( group.created_at ).to be_kind_of(Time)
     end
   end
-  
+
   context 'when not Primary Group' do
     it '#primary_group? to be false' do
       expect(group).to receive(:primary_user).and_return(nil)
       expect(group.primary_group?).to be_falsy
     end
-    
+
     it '#primary_user to be nil' do
       expect(group).to receive(:primary_user).and_return(nil)
       expect(group.primary_user).to be_nil
     end
   end
-  
+
   context 'when Primary Group' do
     it '#primary_group? => true' do
       expect(primarygroup).to receive(:primary_user).and_return(testuser)
       expect(primarygroup.primary_group?).to be_truthy
     end
-    
+
     it '#primary_user not empty' do
       expect(primarygroup).to receive(:primary_user).and_return(testuser)
       expect(primarygroup.primary_user).to be_kind_of(AdDir::User)
@@ -77,7 +77,7 @@ describe AdDir::Group do
     it '#remove_user' do
       allow(group).to receive(:modify).and_return([])
       allow(group).to receive(:users).and_return([])
-      # 
+      #
       group.remove_user(testuser)
       expect(group.members).to_not include(testuser.dn)
     end

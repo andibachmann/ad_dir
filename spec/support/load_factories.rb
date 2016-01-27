@@ -21,4 +21,3 @@ def load_data
     hsh[name.to_sym] = nete
   end
 end
-

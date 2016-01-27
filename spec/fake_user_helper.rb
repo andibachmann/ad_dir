@@ -4,7 +4,7 @@
 # rspec mocks try to verify every single method call and fails with dynamic
 # method calls
 # @see {http://www.relishapp.com/rspec/rspec-mocks/v/3-4/docs/verifying-doubles/dynamic-classes}
-# 
+#
 # Providing a method 'define_attr_meths' we can tell rspec to look up and
 # verify dynamic calls.
 #

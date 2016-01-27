@@ -7,32 +7,31 @@ describe AdDir::User do
   let(:primarygroup) { get_my_test('AdDir::Group', :primarygroup) }
 
   context 'Querying attributes' do
-        
     it '#dn returns the \'Distinct Name\'' do
       expect(tuser.dn).to eq('CN=testuser testuser,OU=People,DC=d,DC=geo,DC=uzh,DC=ch')
     end
-    
+
     it '#username returns the username' do
       expect(tuser.username).to eq('testuser')
     end
-    
+
     it '#firstname returns the firstname' do
       expect(tuser.firstname).to eq('Test-Firstname')
     end
-    
+
     it '#lastname returns the lastname' do
       expect(tuser.lastname).to eq('Test-Lastname')
     end
-    
+
     it '#mail returns the mail address' do
       expect(tuser.mail).to eq('testuser.testuser@geo.uzh.ch')
     end
-    
+
     it '#email returns the mail address' do
       expect( tuser.email ).to eq('testuser.testuser@geo.uzh.ch')
     end
   end
-  
+
   describe 'Querying group relations' do
     it '#primary_group_sid returns the SID of primary group' do
       expect(tuser.primary_group_sid).
@@ -53,7 +52,6 @@ describe AdDir::User do
   end
 
   describe 'Manipulating group memberships' do
-
     it '#add_group(AdDir::Group)' do
       ngrp_dn = 'cn=ngrp,ou=groups,dc=d,dc=geo,dc=geo,dc=uzh,dc=ch'
       ngrp    = instance_double('AdDir::Group', dn: ngrp_dn)
@@ -73,5 +71,3 @@ describe AdDir::User do
     end
   end
 end
-  
-  

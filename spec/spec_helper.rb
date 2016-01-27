@@ -20,7 +20,7 @@ end
 # puts "env['integration'] = '#{ENV['INTEGRATION']}'"
 def integration_setup
   if ENV['INTEGRATION'] == '1'
-    warn "======================================================"
+    warn '======================================================'
     warn "setting up 'INTEGRATION'"
     require 'yaml'
     AdDir.establish_connection(YAML.load_file('spec/ad_test.yaml'))

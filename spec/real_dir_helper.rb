@@ -1,4 +1,3 @@
-
 #
 #
 def create_user(firstname, lastname, username, password)

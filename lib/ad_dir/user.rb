@@ -3,19 +3,19 @@
 module AdDir
   class User < Entry
     extend CommonUserAttributes
-    
+
     # Defines aliases for common attributes.
-    # 
+    #
     map_common_attrs(
       lastname:  :sn,
       firstname: :givenname,
       username:  :samaccountname,
       email:     :mail
     )
-   
+
     #
     self.tree_base = nil
-    
+
     # This is used for building any filter search for a User.
     # `(objectcategory=#{@objectcategor})`.
     @objectcategory = 'person'
@@ -33,7 +33,7 @@ module AdDir
     def uac_decoded
       AdDir::Utilities.uac_decode(@ldap_entry[:useraccountcontrol].first)
     end
- 
+
     # Returns the primary_group of the user.
     # The attribute `:primarygroupid` to
     # construct the `primarygroupSID` and retrieve it from the AD.
@@ -73,8 +73,8 @@ module AdDir
       # In order to avoid multiple ldap-connection requests we do not
       # iterate over `.groups` (AKA @attributes[:memberof] but extract
       # the names from the DNs and return the CN part.
-      @ldap_entry[:memberof].map do |dn| 
-        dn.split(',').first.split('=').last 
+      @ldap_entry[:memberof].map do |dn|
+        dn.split(',').first.split('=').last
       end.sort
     end
 
@@ -95,7 +95,7 @@ module AdDir
     def add_group(group)
       return if memberof.include?(group.dn)
       if group.add_user(self)
-        warn "reloading..."
+        warn 'reloading...'
         warn "changes = > '#{changes}'"
         reload!
         memberof
@@ -114,6 +114,5 @@ module AdDir
       # return the new list of groups
       groups
     end
-  
   end
 end
