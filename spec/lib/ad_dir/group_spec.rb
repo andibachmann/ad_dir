@@ -16,7 +16,7 @@ describe AdDir::Group do
       expect(group.users_usernames).to include('testuser')
     end
 
-    it '#users => [<GiuzAd::User>]' do
+    it '#users => [<AdDir::User>]' do
       expect(group).to receive(:users).and_return([testuser])
       users = group.users
       expect(users).to be_kind_of(Array)

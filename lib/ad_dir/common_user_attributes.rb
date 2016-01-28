@@ -11,7 +11,7 @@ module AdDir
     #      map_common_attrs(lastname: :sn, firstname: :givenname)
     #   end
     #   # Then use it like this:
-    #   user = GiuzAd::User.find('jdoe')
+    #   user = AdDir::User.find('jdoe')
     #   user.lastname == user.sn
     #   # => true
     #
