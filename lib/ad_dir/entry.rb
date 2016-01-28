@@ -82,7 +82,7 @@ module AdDir
   # ```
   #
   # ## Read
-  # ### `#find`
+  # ### `.find`
   #
   #     AdDir::Entry.find('jdoe')
   #     # => searches with an LDAP filter '(samaccountname=jdoe)'
@@ -90,7 +90,7 @@ module AdDir
   #     AdDir::Entry.find_by_givenname('Doe*')
   #     # => '(givenname=Doe*)'
   #
-  # ### `#where` (Filter)
+  # ### `.where` (Filter)
   #
   # * Using a Hash
   #
@@ -105,7 +105,7 @@ module AdDir
   #   AdDir::Entry.where('(|(sn=Foo)(cn=Bar))')
   # ```
   #
-  # ### `#all`
+  # ### `.all`
   #
   # ```
   #   AdDir::Entry.all
@@ -135,8 +135,8 @@ module AdDir
 
     # Regexp that matches `find_xxx` methods.
     #
-    # Note: Likewise ActiveRecord the difference between `#find` and
-    # `#where` is boldly that `#find` is used when you are really
+    # Note: Likewise ActiveRecord the difference between `.find` and
+    # `.where` is boldly that `.find` is used when you are really
     # looking for a given entry, while the latter is used to filter on
     # some condition.
     FIND_METHOD_REGEXP = /\Afind(_by_(\w+))?\Z/

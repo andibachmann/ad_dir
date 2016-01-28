@@ -18,13 +18,13 @@ behaves like ActiveRecord.)
   gem.test_files    = gem.files.grep(%r{^(test|spec|features)/})
   gem.require_paths = ['lib']
 
-  gem.add_development_dependency 'bundler', '~> 1.6'
-  gem.add_development_dependency 'rake', '~> 10.4'
+  gem.add_development_dependency 'bundler'
+  gem.add_development_dependency 'rake'
   gem.add_development_dependency 'yard'
   gem.add_development_dependency 'redcarpet'
-  gem.add_development_dependency 'wirble', '> 0.1'
-  gem.add_development_dependency 'rspec', '~> 3.2'
-  gem.add_development_dependency 'rubygems-tasks', '~> 0.2'
+  gem.add_development_dependency 'wirble'
+  gem.add_development_dependency 'rspec'
+  gem.add_development_dependency 'rubygems-tasks'
   gem.add_development_dependency('rubocop', '> 0.28')
 
   gem.add_dependency 'net-ldap', '~> 0.13'

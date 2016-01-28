@@ -1,10 +1,58 @@
 module AdDir
-  # Group
+  # **`AdDir::Group`** models a 'Group' entry in an Active Directory.
+  #
+  # For basic CRUD operations see {AdDir::Entry}. In additon to these
+  # {AdDir::Group} offers methods to list and managed {AdDir::User}
+  # relationships.
+  #
+  # ## List users belonging to a group
+  #
+  # * **`members`** list of members' DNs 
+  #
+  # ```
+  #    mygrp = AdDir::Group.find('lpadmin')
+  #    mygrp.members
+  #    # => ["CN=John Doe",OU=people,ou....", "CN=Betty...", ...]
+  # ```
+  #
+  # * **`users`** => Array of {User} objects
+  #
+  # ```
+  #    mygrp.users
+  #    # => [#<AdDir::User dn: "CN=John Doe",..." ...>, <#AdDir::User dn: ..]
+  # ```
+  #
+  # * **`users_usernames`** lists the username of each member
+  #
+  # ```
+  #    mygrp.users_usernames
+  #    # => ["jdoe", "bblue", "shhinter"]
+  # ```
+  #
+  # ## Modify User Relationship
+  #
+  # **Note**: Contrary to modifications of 'normal' attributes
+  # modifications of user relationships are instantly saved!
+  #
+  # ### Add User
+  #
+  # ```
+  #   jdoe = AdDir::User.find('jdoe')
+  #   mygrp.add_user(jdoe)
+  # ```
+  #
+  # ### Removing a user
+  #
+  # ```
+  #   jdoe = AdDir::User.find('jdoe')
+  #   mygrp.remove_user(jdoe)
+  # ```
   #
   class Group < AdDir::Entry
     self.tree_base   = 'ou=groups,dc=d,dc=geo,dc=uzh,dc=ch'
     self.primary_key = :samaccountname
 
+    # Used to efficiently filter Group entries in ActiveDirectory.
     @objectcategory = 'group'
 
     # The name of the group (i.e. the samaccountname)
@@ -52,8 +100,8 @@ module AdDir
 
     alias_method :users_usernames, :members_usernames
 
-    # Add a <tt>user</tt>
-    #
+    # Adds a user to the group
+    # 
     def add_user(user)
       unless members.include?(user.dn)
         self[:member] << user.dn
@@ -62,21 +110,14 @@ module AdDir
       users
     end
 
-    # Remove a <tt>user</tt>
+    # Remove a user from the group
     #
     def remove_user(user)
-      # modify_users(members - [user.dn]) if members.include?(user.dn)
       if members.include?(user.dn)
         self[:member] -= [user.dn]
         save
       end
       users
-    end
-
-    def modify_users(new_users)
-      warn "changing 'new_users' '#{new_users}'"
-      warn "changing 'new_users' '#{changes[:member]}'"
-      modify(member: [changes[:member], new_users])
     end
   end
 end

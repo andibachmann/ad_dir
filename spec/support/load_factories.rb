@@ -9,7 +9,7 @@
 #    group_<somename>.ldif
 #
 # The instance is then named ++@<somename>++ and of class
-# GiuzAd::Group or GiuzAd::User.
+# AdDir::Group or AdDir::User.
 #
 def load_data
   examples = Dir.glob('spec/support/*.ldif')

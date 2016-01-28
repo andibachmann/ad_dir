@@ -24,19 +24,21 @@ YARD::Rake::YardocTask.new do |t|
 end
 
 require 'rspec/core/rake_task'
-RSpec::Core::RakeTask.new
+RSpec::Core::RakeTask.new(:spec)
 task default: :spec
 
 namespace :spec do
   desc 'base'
   task :base do
-    Rake::Task[:spec].execute
+    #Rake::Task[:spec].execute
+    sh 'rspec'
   end
 
   desc 'integration'
   task :integration do
     ENV['INTEGRATION'] = '1'
-    Rake::Task[:spec].execute
+    # Rake::Task[:spec].execute
+    sh "rspec --pattern 'integration/**/*_spec.rb'"
   end
 end
 
@@ -74,15 +76,16 @@ task :rebuild do
   mv builder.build, project.class::PKG_DIR
 end
 
-desc 'console_test'
-task :console_test do
+desc 'console_integr'
+task :console_integr do
   $LOAD_PATH.unshift('spec/')
   $LOAD_PATH.unshift('lib/')
+  ENV['INTEGRATION'] = '1'
   require 'irb'
   require 'irb/completion'
   require 'ad_dir'
-  require 'spec_helper'
-  require 'real_dir_helper'
+  require 'spec_helper'      #
+  require 'real_dir_helper'  # create_user, create_group helpers
   ARGV.clear
   IRB.start
 end

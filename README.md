@@ -3,35 +3,42 @@
 # Description
 
 `ad_dir` provides an easy interface to ActiveDirectory based on
-`net-ldap` gem.
+the `net-ldap` gem.
 
 # Features
 
-`ad_dir` allows to query and manage entries of the AD directory
+`ad_dir` allows to query and manage entries of the AD directory.
+Currently, it provides only a `AdDir::User` and a `AdDir::Group` model
+based on the base class  `AdDir::Entry`.
 
-The most important class is `AdDir::Entry`. It is kind of a proxy
-the wraps most of the instance methods to Net::LDAP::Entry while
-most of the class methods deal with connecting to the ActiveDirectory,
-and search and retrieve an entry.
+`AdDir::Entry` is kind of a proxy that wraps most of the instance methods of
+`Net::LDAP::Entry` while most of the class methods deal with connecting
+to the ActiveDirectory, as well as searching and retrieving entries.
+
+The library tries to provide the same functionalities as given by `ActiveRecord`.
 
 # Examples
 
+```
   require 'ad_dir'
-
-#  Howto add Entries to ActiveDirectory
-
-## User
+  AdDir.establish_connection(
+    host: 'my.nice.com',
+    base: 'dc=my,dc=nice,dc=com',
+    username: 'cn=manager,dc=example,dc=com',
+    password: 'opensesame'
+  )
+  jdoe = AdDir::User.find('jdoe')
+  jdoe.groups
+  # => [<#AdDir::Group... ]
+  jdoe.add_group(AdDir::Group.find('admin'))
+```
 
 
 # Requirements
 
- * `net-ldap` >= 0.13
+ * 'net-ldap' >= '0.13'
 
-#Install
+# Install
 
     $ gem install ad_dir
-
-# Synopsis
-
-    AdDir::User.find('uid_string')
 

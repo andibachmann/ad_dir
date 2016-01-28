@@ -1,6 +1,57 @@
 # User Model
 
 module AdDir
+  # **`AdDir::User`** models a 'User' entry in an Active Directory.
+  #
+  # For a description of the most common CRUD actions have a look
+  # at {AdDir::Entry}.
+  #
+  # In addition to these basic functions {AdDir::User} offers methods
+  # to list and manage {AdDir::Group} relationships.
+  #
+  # ## List Groups
+  #
+  # * **`#group_names`** List the names of all groups a user belongs to:
+  #
+  # ```
+  #   jdoe = AdDir::User.find('jdoe')
+  #   jdoe.group_names
+  #   #=> ["testgroup", "admin", "lpadmi"]
+  # ```
+  #
+  # * **`#groups`** fetch all groups a user belongs to
+  #
+  # ```
+  #   jdoe.groups
+  #   #=> [#<AdDir::Group dn: "cn=testgroup...">, #<AdDir::Group dn: "cn.." ...]
+  # ```
+  #
+  # * **`#memberof`** display the DNs of all groups a user belongs to.
+  #
+  # ```
+  #    jdoe.memberof
+  #    # => ["CN=Testgroup,OU=groups,Dc...", ...]
+  # ```
+  #
+  # ## Modifying Group Relationships
+  #
+  # **Note**: Contrary to modifications of 'normal' attributes
+  # modifications of group relationships are instantly saved!
+  #
+  # ### Add to Group
+  # 
+  # ```
+  #   lpa_gr = AdDir::Group.find('lpadmin')
+  #   jdoe.add_group(lpa_gr)
+  # ```
+  #
+  # ### Remove group
+  #
+  # ```
+  #   lpa_gr = AdDir::Group.find('lpadmin')
+  #   jdoe.remove_group(lpa_gr)
+  # ```
+  #
   class User < Entry
     extend CommonUserAttributes
 
@@ -86,7 +137,7 @@ module AdDir
     # A user without groups has no :memberof attributes, but we silently
     # add it.
     def memberof
-      return @ldap_entry[:membeof] if attribute_present?(:memberof)
+      return @ldap_entry[:memberof] if attribute_present?(:memberof)
       @ldap_entry[:memberof] = []
     end
 
@@ -95,8 +146,6 @@ module AdDir
     def add_group(group)
       return if memberof.include?(group.dn)
       if group.add_user(self)
-        warn 'reloading...'
-        warn "changes = > '#{changes}'"
         reload!
         memberof
       else
