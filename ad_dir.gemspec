@@ -5,7 +5,7 @@ require File.expand_path('../lib/ad_dir/version', __FILE__)
 Gem::Specification.new do |gem|
   gem.name          = 'ad_dir'
   gem.version       = AdDir::VERSION
-  gem.summary       = %(net-ldap wrapper for GIUZ ActiveDirectory)
+  gem.summary       = %(net-ldap wrapper for ActiveDirectory)
   gem.description   = %(Based on net-ldap this gem is a simple wrapper that \
 behaves like ActiveRecord.)
   gem.license       = 'MIT'
@@ -27,5 +27,5 @@ behaves like ActiveRecord.)
   gem.add_development_dependency 'rubygems-tasks', '~> 0.2'
   gem.add_development_dependency('rubocop', '> 0.28')
 
-  gem.add_dependency 'net-ldap', '~> 0.12'
+  gem.add_dependency 'net-ldap', '~> 0.13'
 end

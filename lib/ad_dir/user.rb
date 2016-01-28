@@ -47,7 +47,7 @@ module AdDir
     # `:primarygroupid`
     #
     # @example
-    #    user = GiuzAd::User.find('jdoe')
+    #    user = AdDir::User.find('jdoe')
     #    user.objectsid_decoded
     #    # => "S-1-5-21-15115519-869956856-4114428504-1105"
     #    user.primarygroupid
