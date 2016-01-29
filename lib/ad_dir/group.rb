@@ -7,7 +7,7 @@ module AdDir
   #
   # ## List users belonging to a group
   #
-  # * **`members`** list of members' DNs 
+  # * **`members`** list of members' DNs
   #
   # ```
   #    mygrp = AdDir::Group.find('lpadmin')
@@ -53,7 +53,44 @@ module AdDir
     self.primary_key = :samaccountname
 
     # Used to efficiently filter Group entries in ActiveDirectory.
-    @objectcategory = 'group'
+    OBJECTCATEGORY = 'group'
+
+    # Get the correct `User` class.
+    # When querying and managing users subclasses of this class
+    # have to get the correct User model.
+    # @example
+    #
+    # ```
+    #   module B
+    #     class User < AdDir::User
+    #     end
+    #
+    #     class Group < AdDir::Group
+    #     end
+    #   end
+    #
+    #   g = B::Group.user_klass
+    #   => B::User
+    # ```
+    # If there is no class `B::User` any group related methods will fail.
+    #
+    # If you want to override this method simply set the class instance
+    # variable `@user_klass` to your custom group class:
+    #
+    # ```
+    #   module B
+    #     class Group < AdDir::Group
+    #       @user_klass = C::User
+    #     end
+    #   end
+    #   #
+    #   B::Group.user_klass
+    #   # => C::User
+    # ```
+    def self.user_klass
+      return @user_klass if defined? @user_klass
+      @user_klass = sibling_klass('User')
+    end
 
     # The name of the group (i.e. the samaccountname)
     #
@@ -63,13 +100,15 @@ module AdDir
 
     # Return all users being member of this group.
     def users
-      members.map { |dn| User.select_dn(dn) }
+      # members.map { |dn| User.select_dn(dn) }
+      members.map { |dn| self.class.user_klass.select_dn(dn) }
     end
 
     # Find the 'primary user' of the group
     # If this is a normal group 'nil' is returned.
     def primary_user
-      @primary_user ||= AdDir::User.find_by_primarygroupid(
+      # @primary_user ||= AdDir::User.find_by_primarygroupid(
+      @primary_user ||= self.class.user_klass.find_by_primarygroupid(
         objectsid_decoded.split('-').last
       )
     end
@@ -101,7 +140,7 @@ module AdDir
     alias_method :users_usernames, :members_usernames
 
     # Adds a user to the group
-    # 
+    #
     def add_user(user)
       unless members.include?(user.dn)
         self[:member] << user.dn

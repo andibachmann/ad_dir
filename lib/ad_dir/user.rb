@@ -39,7 +39,7 @@ module AdDir
   # modifications of group relationships are instantly saved!
   #
   # ### Add to Group
-  # 
+  #
   # ```
   #   lpa_gr = AdDir::Group.find('lpadmin')
   #   jdoe.add_group(lpa_gr)
@@ -68,8 +68,45 @@ module AdDir
     self.tree_base = nil
 
     # This is used for building any filter search for a User.
-    # `(objectcategory=#{@objectcategor})`.
-    @objectcategory = 'person'
+    # `(objectcategory=#{OBJECTCATEGORY})`.
+    OBJECTCATEGORY = 'person'
+
+    # Get the correct `Group` class.
+    # When querying and managing group subclasses of this class
+    # have to get the correct Group model.
+    # @example
+    #
+    # ```
+    #   module B
+    #     class User < AdDir::User
+    #     end
+    #
+    #     class Group < AdDir::Group
+    #     end
+    #   end
+    #
+    #   u = B::User.group_klass
+    #   => B::Group
+    # ```
+    # If there is no class `B::Group` any group related methods will fail.
+    #
+    # If you want to override this method simply set the class instance
+    # variable `@group_klass` to your custom group class:
+    #
+    # ```
+    #   module B
+    #     class User < AdDir::User
+    #       @group_klass = C::Group
+    #     end
+    #   end
+    #   #
+    #   B::User.group_klass
+    #   # => C::Group
+    # ```
+    def self.group_klass
+      return @group_klass if defined? @group_klass
+      @group_klass = sibling_klass('Group')
+    end
 
     # Encodes and sets the provided clear text password
     # @see AdDir::Utitlities.unicodepwd
@@ -89,7 +126,9 @@ module AdDir
     # The attribute `:primarygroupid` to
     # construct the `primarygroupSID` and retrieve it from the AD.
     def primary_group
-      @primary_group ||= Group.find_by_objectsid(primary_group_sid)
+      # @primary_group ||= Group.find_by_objectsid(primary_group_sid)
+      @primary_group ||= self.class.group_klass
+        .find_by_objectsid(primary_group_sid)
     end
 
     # The SID of the primary group is based on the User's SID
@@ -115,7 +154,8 @@ module AdDir
     # Return an array of the Group objects the user is member of.
     # @return [Array<Group>] the groups the user is member of.
     def groups
-      self[:memberof].map { |dn| Group.select_dn(dn) }
+      # self[:memberof].map { |dn| Group.select_dn(dn) }
+      self[:memberof].map { |dn| self.class.group_klass.select_dn(dn) }
     end
 
     # Return an array of group names.

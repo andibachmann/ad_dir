@@ -1,7 +1,7 @@
 require 'spec_helper'
 require 'real_dir_helper'
 
-context "Integration", integration: true do
+context 'Integration', integration: true do
   describe AdDir::User do
     context 'group modifications' do
       before(:context) do
@@ -11,12 +11,12 @@ context "Integration", integration: true do
         @gu.destroy if @gu = AdDir::Group.find('grouptt')
         @gu = create_group('grouptt')
       end
-      
+
       it '#add_group(<some_grp>)' do
         @tu.add_group(@gu)
         expect(@tu.memberof).to include(@gu.dn)
       end
-      
+
       it '#remove_group(<some_grp>)' do
         fg = @tu.groups.first
         @tu.remove_group(fg)

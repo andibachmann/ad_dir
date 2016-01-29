@@ -2,7 +2,7 @@ require 'spec_helper'
 
 describe AdDir::CommonUserAttributes do
   let(:testuser) { get_my_test('AdDir::User', :testuser) }
-  
+
   context 'when retrieving value' do
     it '.lastname == .sn' do
       expect(testuser.lastname).to eq(testuser.sn)
@@ -11,16 +11,16 @@ describe AdDir::CommonUserAttributes do
     it '.email == :mail' do
       expect(testuser.email).to eq(testuser.mail)
     end
-    
+
     it '.firstname == .givenname' do
       expect(testuser.firstname).to eq(testuser.givenname)
     end
-    
+
     it '.username == .samaccountname' do
       expect(testuser.username).to eq(testuser.samaccountname)
     end
   end
-  
+
   context 'when setting value' do
     it '.lastname = "Doey"' do
       testuser.lastname = 'Doey'
@@ -41,7 +41,5 @@ describe AdDir::CommonUserAttributes do
       testuser.username = ex.metadata[:value]
       expect(testuser.samaccountname).to eq(ex.metadata[:value])
     end
-
-
   end
 end

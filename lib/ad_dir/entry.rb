@@ -144,7 +144,7 @@ module AdDir
     # Define which category a record belongs to
     # Active Directory knows: `person`, `computer`, `group`
     #
-    @objectcategory = ''
+    OBJECTCATEGORY = ''
 
     # ---------------------------------------------------------- CLASS Methods
 
@@ -210,6 +210,30 @@ module AdDir
       @primary_key ||= 'samaccountname'
     end
 
+    # Return the name of the parent module/class.
+    #
+    # This is important for inflection when inheriting classes.
+    # The method is copied from `ActiveSupport::CoreExtensions::Module`
+    # @see http://www.rubydoc.info/docs/rails/2.3.8/ActiveSupport/CoreExtensions/Module#parent-instance_method
+    def self.parent_name
+      return @parent_name if defined? @parent_name
+      @parent_name = name =~ /::[^:]+\Z/ ? $`.freeze : nil
+    end
+
+    # Return a sibling klass for the given name
+    #
+    # This is needed to construct some basic relationship between
+    # a `User` and `Group` model.
+    # @see {User#add_group}
+    # @see {User.group_klass}
+    # @see {Group#add_user}
+    # @see {Group.user_klass}
+    # @param klass_name [String]
+    def self.sibling_klass(klass_name)
+      composed_klass = "#{parent_name}::#{klass_name}"
+      Object.const_get(composed_klass)
+    end
+
     ##
     # Instantiates an AdDir::Entry and saves it in the ActiveDirectory.
     #
@@ -266,11 +290,18 @@ module AdDir
     # Category Filter
     # Use this to efficiently select entries from the Active Directory
     # The filter relays on the class instance variable @objectcategory
+    # def self.category_filter
+    #   return @category_filter if @category_filter
+    #   cat = @objectcategory.empty? ? '*' : @objectcategory
+    #   @category_filter = Net::LDAP::Filter.eq('objectcategory', cat)
+    # end
     def self.category_filter
       return @category_filter if @category_filter
-      cat = @objectcategory.empty? ? '*' : @objectcategory
+      cat = OBJECTCATEGORY.empty? ? '*' : OBJECTCATEGORY
       @category_filter = Net::LDAP::Filter.eq('objectcategory', cat)
     end
+
+
 
     # Search and other utilities
     #
