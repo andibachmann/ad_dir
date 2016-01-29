@@ -1,6 +1,6 @@
 # encoding: utf-8
 #
-
+require 'date'
 require 'ad_dir/derived_attributes'
 
 module AdDir
