@@ -72,9 +72,11 @@ module AdDir
     OBJECTCATEGORY = 'person'
 
     # Get the correct `Group` class.
+    #
     # When querying and managing group subclasses of this class
-    # have to get the correct Group model.
-    # @example
+    # have to get the correct `Group` model:
+    #
+    # @return [<Class>]
     #
     # ```
     #   module B
@@ -86,8 +88,9 @@ module AdDir
     #   end
     #
     #   u = B::User.group_klass
-    #   => B::Group
+    #   # => B::Group
     # ```
+    #
     # If there is no class `B::Group` any group related methods will fail.
     #
     # If you want to override this method simply set the class instance

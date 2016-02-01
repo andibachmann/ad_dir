@@ -58,7 +58,6 @@ module AdDir
     # Get the correct `User` class.
     # When querying and managing users subclasses of this class
     # have to get the correct User model.
-    # @example
     #
     # ```
     #   module B
@@ -70,8 +69,9 @@ module AdDir
     #   end
     #
     #   g = B::Group.user_klass
-    #   => B::User
+    #   #=> B::User
     # ```
+    #
     # If there is no class `B::User` any group related methods will fail.
     #
     # If you want to override this method simply set the class instance

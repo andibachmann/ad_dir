@@ -380,7 +380,7 @@ module AdDir
       else
         filter = Net::LDAP::Filter.from_rfc4515(opts)
       end
-      search(filter: filter).map { |e| from_ldap_entry(e) }
+      search(filter: category_filter & filter).map { |e| from_ldap_entry(e) }
     end
 
     # Builds a Net::LDAP::Filter based on a given hash.
@@ -451,9 +451,11 @@ module AdDir
       self.class.connection
     end
 
-    # Returns a hash with all attributes and values.
+    # Returns a hash with all attributes and (raw) values
+    # as present in the ActiveDirectory.
+    # 
     # @return [Hash]
-    def attributes
+    def raw_attributes
       @ldap_entry.attribute_names.each_with_object({}) do |key, hsh|
         hsh[key] = @ldap_entry[key]
       end
@@ -624,9 +626,11 @@ module AdDir
       "#<#{self.class} #{inspection}>"
     end
 
-    # copied that from activerecord method
+    # Returns an {#inspect}-like string for the `value` (based on it's class).
     #
-    # @see {ActiveRecord::AttributeMethods#attribute_for_inspect}
+    # Copied that from activerecord method
+    #
+    # @see http://api.rubyonrails.org/classes/ActiveRecord/AttributeMethods.html#method-i-attribute_for_inspect ActiveRecord::AttributeMethods#attribute_for_inspect
     def attribute_for_inspect(value)
       # if value.is_a?(String) && value.length > 50
       #   "#{value[0, 50]}...".inspect
