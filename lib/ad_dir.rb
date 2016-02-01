@@ -1,5 +1,4 @@
 require 'net/ldap'
-require 'fix_utf'
 require 'ad_dir/version'
 
 # AdDir alllows you to talk with an ActiveDirectory in a 'active_record'
