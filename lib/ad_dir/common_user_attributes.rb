@@ -26,6 +26,18 @@ module AdDir
           __send__("#{attr_orig}=", val)
         end
       end
+      #
+      include InstanceMethods
+    end
+
+    # Instance methods of CommonUserAttributes
+    module InstanceMethods
+      # Return the arguments that were passed to the class method
+      # {.map_common_attrs}.
+      # @return [<Hash>]
+      def common_attrs
+        self.class.instance_variable_get('@common_attrs')
+      end
     end
   end
 end

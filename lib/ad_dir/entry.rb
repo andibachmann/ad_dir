@@ -257,7 +257,7 @@ module AdDir
       e = new(entry.dn)
       e.instance_variable_set('@ldap_entry', entry)
       e.instance_variable_set('@new_entry', false)
-      e.instance_variable_set('@persisted_attrs', e.attributes.dup)
+      e.instance_variable_set('@persisted_attrs', e.raw_attributes.dup)
       e
     end
 
@@ -461,6 +461,16 @@ module AdDir
       end
     end
 
+    # Returns a hash with all attributes and (raw) values
+    # as present in the ActiveDirectory.
+    # 
+    # @return [Hash]
+    def attributes
+      @ldap_entry.attribute_names.each_with_object({}) do |key, hsh|
+        hsh[key] = get_value(key)
+      end
+    end
+
     def respond_to_missing?(method_sym, include_private = false) # :nodoc
       @ldap_entry.respond_to?(method_sym) || super.respond_to?(method_sym)
     end
@@ -604,7 +614,7 @@ module AdDir
       if success
         @new_entry       = false
         @ldap_entry      = success.first
-        @persisted_attrs = attributes.dup
+        @persisted_attrs = raw_attributes.dup
         true
       else
         false
