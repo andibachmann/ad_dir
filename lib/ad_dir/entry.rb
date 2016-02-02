@@ -39,7 +39,13 @@ module AdDir
   #   user.attributes
   # ```
   #
-  # ### Retrieving Attribute Values
+  # Note: Mainly for debugging purposes there is the method {#raw_attributes}
+  #   returning the original attributes as present in the `Net::LDAP::Entry`
+  #   object (see also
+  #   [Retrieving Attribute Values](#retrieving-attribute-values))
+  #
+  # ### <a name="retrieving-attribute-values"></a> Retrieving Attribute Values
+  #
   # Values of attributes can be accessed in two ways:
   #
   # ```
@@ -451,9 +457,11 @@ module AdDir
       self.class.connection
     end
 
-    # Returns a hash with attributes and (unwrapped) values.
-    # 
-    # @see {#raw_attributes}
+    # @!method attributes
+    # Returns a hash with all attributes and (unwrapped) values.
+    # Any singled value array is unwrapped and the value itself is
+    # returned.
+    #
     # @see {#get_value)
     # @return [Hash]
     def attributes
@@ -462,13 +470,14 @@ module AdDir
       end
     end
 
+    # @!method raw_attributes
     # Returns a hash with all attributes and (raw) values
     # as present in the ActiveDirectory entry.
     # 
     # @note The values are directly taken from the Net::LDAP::Entry object,
     #   i.e., each value is wrapped in an array.
     #
-    # @see {#[]}
+    # see (#[])
     # @return [Hash]
     def raw_attributes
       @ldap_entry.attribute_names.each_with_object({}) do |key, hsh|

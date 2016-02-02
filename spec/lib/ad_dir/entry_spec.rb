@@ -113,7 +113,7 @@ describe AdDir::Entry do
       end
 
       it '#changed? => false' do
-        expect(euser.changed?).to be_falsy
+        expect(user.changed?).to be_falsy
       end
     end
 
