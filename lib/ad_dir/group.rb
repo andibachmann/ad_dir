@@ -143,7 +143,7 @@ module AdDir
     #
     def add_user(user)
       unless members.include?(user.dn)
-        self[:member] << user.dn
+        self[:member] += [user.dn]
         save
       end
       users
