@@ -69,7 +69,7 @@ module AdDir
 
     # This is used for building any filter search for a User.
     # `(objectcategory=#{OBJECTCATEGORY})`.
-    OBJECTCATEGORY = 'person'
+    OBJECTCATEGORY = 'person'.freeze
 
     # Get the correct `Group` class.
     #

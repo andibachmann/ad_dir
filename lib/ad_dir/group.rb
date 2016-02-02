@@ -53,7 +53,7 @@ module AdDir
     self.primary_key = :samaccountname
 
     # Used to efficiently filter Group entries in ActiveDirectory.
-    OBJECTCATEGORY = 'group'
+    OBJECTCATEGORY = 'group'.freeze
 
     # Get the correct `User` class.
     # When querying and managing users subclasses of this class

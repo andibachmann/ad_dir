@@ -8,6 +8,7 @@ AllCops:
   #
   DisabledByDefault: false
   DisplayCopNames: true
+  TargetRubyVersion: 2.2
 
 Style/StringLiterals:
   # EnforcedStyle: double_quotes

@@ -37,7 +37,7 @@ module AdDir
       PASSWORD_EXPIRED:                 0x800000,
       TRUSTED_TO_AUTH_FOR_DELEGATION:  0x1000000,
       PARTIAL_SECRETS_ACCOUNT:        0x04000000
-    }
+    }.freeze
 
     # DateTime calulations
     # Docu-URL: http://support.microsoft.com/kb/555936

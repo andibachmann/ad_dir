@@ -6,7 +6,7 @@ describe AdDir::User do
   let(:group) { get_my_test('AdDir::Group', :group) }
   let(:primarygroup) { get_my_test('AdDir::Group', :primarygroup) }
 
-  fcontext '#where' do
+  context '#where' do
     it ':filter includes objectfilter' do
       tfilter = Net::LDAP::Filter.eq("objectcategory", "person") &
         Net::LDAP::Filter.eq(:samaccountname, 'testuser')

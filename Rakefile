@@ -28,11 +28,8 @@ RSpec::Core::RakeTask.new(:spec)
 task default: :spec
 
 namespace :spec do
-  desc 'base'
-  task :base do
-    #Rake::Task[:spec].execute
-    sh 'rspec'
-  end
+  desc 'Run only base specs withouth INTEGRATION'
+  task base: :spec
 
   desc 'integration'
   task :integration do

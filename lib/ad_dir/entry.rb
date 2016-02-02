@@ -148,7 +148,7 @@ module AdDir
     # Define which category a record belongs to
     # Active Directory knows: `person`, `computer`, `group`
     #
-    OBJECTCATEGORY = ''
+    OBJECTCATEGORY = ''.freeze
 
     # ---------------------------------------------------------- CLASS Methods
 
@@ -304,8 +304,6 @@ module AdDir
       cat = const_get(:OBJECTCATEGORY).empty? ? '*' : const_get(:OBJECTCATEGORY)
       @category_filter = Net::LDAP::Filter.eq('objectcategory', cat)
     end
-
-
 
     # Search and other utilities
     #
@@ -470,7 +468,7 @@ module AdDir
 
     # Returns a hash with all attributes and (raw) values
     # as present in the ActiveDirectory entry.
-    # 
+    #
     # @note The values are directly taken from the Net::LDAP::Entry object,
     #   i.e., each value is wrapped in an array.
     #
