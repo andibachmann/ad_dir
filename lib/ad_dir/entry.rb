@@ -451,9 +451,24 @@ module AdDir
       self.class.connection
     end
 
-    # Returns a hash with all attributes and (raw) values
-    # as present in the ActiveDirectory.
+    # Returns a hash with attributes and (unwrapped) values.
     # 
+    # @see {#raw_attributes}
+    # @see {#get_value)
+    # @return [Hash]
+    def attributes
+      @ldap_entry.attribute_names.each_with_object({}) do |key, hsh|
+        hsh[key] = get_value(key)
+      end
+    end
+
+    # Returns a hash with all attributes and (raw) values
+    # as present in the ActiveDirectory entry.
+    # 
+    # @note The values are directly taken from the Net::LDAP::Entry object,
+    #   i.e., each value is wrapped in an array.
+    #
+    # @see {#[]}
     # @return [Hash]
     def raw_attributes
       @ldap_entry.attribute_names.each_with_object({}) do |key, hsh|

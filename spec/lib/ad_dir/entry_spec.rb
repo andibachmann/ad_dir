@@ -1,5 +1,5 @@
 require 'spec_helper'
-#require 'ad_dir'
+
 #require 'fake_user_helper'
 
 describe AdDir::Entry do
@@ -105,7 +105,10 @@ describe AdDir::Entry do
     end
 
     context 'when nothing was changed' do
+      let (:user) { testuser.dup }
+
       it '#changes  => {}' do
+        warn user
         expect(user.changes).to be_empty
       end
 
