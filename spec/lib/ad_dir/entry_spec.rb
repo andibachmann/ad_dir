@@ -110,10 +110,9 @@ describe AdDir::Entry do
       it '#changes  => {}' do
         warn user
         expect(user.changes).to be_empty
-      end
 
       it '#changed? => false' do
-        expect(user.changed?).to be_falsy
+        expect(euser.changed?).to be_falsy
       end
     end
 
