@@ -99,17 +99,15 @@ module AdDir
   # ### `.where` (Filter)
   #
   # * Using a Hash
-  #
-  # ```
-  #     AdDir::Entry.where(cn: 'Doe', mail: 'john.doe@ibm.com')
-  #     # => '(&(cn=Doe)(mail=john.doe@ibm.com))'
-  # ```
+  #  ```
+  #   AdDir::Entry.where(cn: 'Doe', mail: 'john.doe@ibm.com')
+  #   # => '(&(cn=Doe)(mail=john.doe@ibm.com))'
+  #  ```
   #
   # * Using a LDAP-Filter-String
-  #
-  # ```
+  #  ```
   #   AdDir::Entry.where('(|(sn=Foo)(cn=Bar))')
-  # ```
+  #  ```
   #
   # ### `.all`
   #
@@ -121,19 +119,19 @@ module AdDir
   # ## Update
   #
   # ```
-  # jdoe = AdDir::Entry.find('jdoe')
-  # jdoe[:givenname] = 'Jonny'   # instead of 'John'
-  # jdoe.changed?
-  # # => true
-  # jdoe.changes
-  # # => {givenname: ['John', 'Jonny']}
-  # jdoe.save
+  #  jdoe = AdDir::Entry.find('jdoe')
+  #  jdoe[:givenname] = 'Jonny'   # instead of 'John'
+  #  jdoe.changed?
+  #  # => true
+  #  jdoe.changes
+  #  # => {givenname: ['John', 'Jonny']}
+  #  jdoe.save
   # ```
   #
   # ## Destroy
   #
   # ```
-  # jdoe.destroy
+  #  jdoe.destroy
   # ```
   #
   class Entry
@@ -303,7 +301,7 @@ module AdDir
     # end
     def self.category_filter
       return @category_filter if @category_filter
-      cat = OBJECTCATEGORY.empty? ? '*' : OBJECTCATEGORY
+      cat = const_get(:OBJECTCATEGORY).empty? ? '*' : const_get(:OBJECTCATEGORY)
       @category_filter = Net::LDAP::Filter.eq('objectcategory', cat)
     end
 
@@ -457,12 +455,12 @@ module AdDir
       self.class.connection
     end
 
-    # @!method attributes
     # Returns a hash with all attributes and (unwrapped) values.
     # Any singled value array is unwrapped and the value itself is
     # returned.
     #
-    # @see {#get_value)
+    # @see #raw_attributes
+    # @see #get_value
     # @return [Hash]
     def attributes
       @ldap_entry.attribute_names.each_with_object({}) do |key, hsh|
@@ -470,28 +468,17 @@ module AdDir
       end
     end
 
-    # @!method raw_attributes
     # Returns a hash with all attributes and (raw) values
     # as present in the ActiveDirectory entry.
     # 
     # @note The values are directly taken from the Net::LDAP::Entry object,
     #   i.e., each value is wrapped in an array.
     #
-    # see (#[])
+    # @see #[]
     # @return [Hash]
     def raw_attributes
       @ldap_entry.attribute_names.each_with_object({}) do |key, hsh|
         hsh[key] = @ldap_entry[key]
-      end
-    end
-
-    # Returns a hash with all attributes and (raw) values
-    # as present in the ActiveDirectory.
-    # 
-    # @return [Hash]
-    def attributes
-      @ldap_entry.attribute_names.each_with_object({}) do |key, hsh|
-        hsh[key] = get_value(key)
       end
     end
 

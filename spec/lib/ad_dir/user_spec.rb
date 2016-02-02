@@ -6,6 +6,16 @@ describe AdDir::User do
   let(:group) { get_my_test('AdDir::Group', :group) }
   let(:primarygroup) { get_my_test('AdDir::Group', :primarygroup) }
 
+  fcontext '#where' do
+    it ':filter includes objectfilter' do
+      tfilter = Net::LDAP::Filter.eq("objectcategory", "person") &
+        Net::LDAP::Filter.eq(:samaccountname, 'testuser')
+      allow(AdDir::User).to receive(:connection)
+      expect(AdDir::User).to receive(:search).with(hash_including(filter: tfilter)).and_return([tuser])
+      AdDir::User.where(samaccountname: 'testuser')
+    end
+  end
+  
   context 'Querying attributes' do
     it '#dn returns the \'Distinct Name\'' do
       expect(tuser.dn).to eq('CN=testuser testuser,OU=People,DC=d,DC=geo,DC=uzh,DC=ch')

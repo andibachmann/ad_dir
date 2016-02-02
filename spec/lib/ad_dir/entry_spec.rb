@@ -30,7 +30,7 @@ describe AdDir::Entry do
 
   # define a testuser
   let(:entry_klass) { class_double('AdDir::Entry') }
-  let(:testuser) { get_my_test('AdDir::Entry', :testuser) }
+  let(:testuser) { get_my_test('AdDir::User', :testuser) }
 
   context 'finder functionality' do
     it '#evaluate_finder_method(:find_by_some_attribute) \
