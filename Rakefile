@@ -39,30 +39,6 @@ namespace :spec do
   end
 end
 
-desc 'Publish gem to the GIUZ gemserver'
-task :pushgiuz do
-  project = Gem::Tasks::Project.new
-  repo_dir = '/web/gems/gems/'
-  if File.exist?(repo_dir)
-    cp File.join(project.class::PKG_DIR, project.gemspec.file_name), repo_dir
-  else
-    warn "ERROR: Can't reach #{repo_dir}!"
-    warn "  Log in to a machine that mounts #{repo_dir} and do:"
-    warn "cp #{File.join(project.class::PKG_DIR, project.gemspec.file_name)} \
-#{repo_dir}"
-    exit 1
-  end
-  #
-  if `uname -s` == 'SunOS'
-    sh 'cd /web/gems && rake'
-  else
-    warn 'ERROR: Could not rebuild the gem repo index!'
-    warn '  Try on a SunOS machine:'
-    warn 'cd /web/gems && rake'
-    exit 2
-  end
-end
-
 desc 'rebuild without SCM-checks'
 task :rebuild do
   # get the project for this gem
