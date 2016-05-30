@@ -9,10 +9,10 @@ module AdDir
   #
   # ## Design Overview
   # {Entry} stores the original `Net::LDAP::Entry` object in an
-  # instance variable **`@ldap_entry`**. When the entry is fetched
+  # instance variable `@ldap_entry`. When the entry is fetched
   # from the ActiveDirectory a snapshot of the entry's persisted
   # attributes and its values is stored in a hash
-  # **`@persisted_attrs`** (using `#dup`!).
+  # `@persisted_attrs` (using `#dup`!).
   #
   # Whenever an attribute is changed the method {#changes} calculates
   # the difference between the currrent values and the values in
@@ -22,7 +22,7 @@ module AdDir
   # List all attribute names:
   #
   # ```
-  #   user.attribute_names
+  # user.attribute_names
   #   => [:dn, :objectclass, :cn, :sn, :givenname, :distinguishedname,
   #   :instancetype, :whencreated, :whenchanged, :displayname, :usncreated,
   #   :usnchanged, :directreports, :name, :objectguid, :useraccountcontrol,
@@ -36,7 +36,7 @@ module AdDir
   # To get a hash of all attribute names and their values
   #
   # ```
-  #   user.attributes
+  # user.attributes
   # ```
   #
   # Note: Mainly for debugging purposes there is the method {#raw_attributes}
@@ -49,18 +49,18 @@ module AdDir
   # Values of attributes can be accessed in two ways:
   #
   # ```
-  #   entry.sn
-  #   # => "Doe"
+  # entry.sn
+  # # => "Doe"
   #
-  #   # NOT RECOMMENDED!
-  #   entry[:sn]
-  #   # => ["Doe"]
-  #
+  # # NOT RECOMMENDED!
+  # entry[:sn]
+  # # => ["Doe"]
   # ```
   # As a rule of thumbs use
-  #  * **`#attr_name`** to get the values ready-to-use without wrapping array.
-  #  * **`[:attr_name]`** only if you want to retrieve the original
-  #     `Net::LDAP::Entry` values.
+  #
+  #  * `#attr_name` to get the values ready-to-use without wrapping array.
+  #  * `[:attr_name]` only if you want to retrieve the original
+  #    `Net::LDAP::Entry` values.
   #
   # ## Create
   # * Create an entry by specifying a DN and providing an conformant set
@@ -99,12 +99,14 @@ module AdDir
   # ### `.where` (Filter)
   #
   # * Using a Hash
+  #
   #  ```
   #   AdDir::Entry.where(cn: 'Doe', mail: 'john.doe@ibm.com')
   #   # => '(&(cn=Doe)(mail=john.doe@ibm.com))'
   #  ```
   #
   # * Using a LDAP-Filter-String
+  #
   #  ```
   #   AdDir::Entry.where('(|(sn=Foo)(cn=Bar))')
   #  ```
@@ -291,14 +293,8 @@ module AdDir
       connection.search(args)
     end
 
-    # Category Filter
-    # Use this to efficiently select entries from the Active Directory
-    # The filter relays on the class instance variable @objectcategory
-    # def self.category_filter
-    #   return @category_filter if @category_filter
-    #   cat = @objectcategory.empty? ? '*' : @objectcategory
-    #   @category_filter = Net::LDAP::Filter.eq('objectcategory', cat)
-    # end
+    # Use this to efficiently select entries from the Active Directory.
+    # The filter relays on the class instance variable `@objectcategory`
     def self.category_filter
       return @category_filter if @category_filter
       cat = const_get(:OBJECTCATEGORY).empty? ? '*' : const_get(:OBJECTCATEGORY)

@@ -9,9 +9,9 @@ the `net-ldap` gem.
 
 `ad_dir` allows to query and manage entries of the AD directory.
 Currently, it provides only a `AdDir::User` and a `AdDir::Group` model
-based on the base class  `AdDir::Entry`.
+based on the base class  {AdDir::Entry}.
 
-`AdDir::Entry` is kind of a proxy that wraps most of the instance methods of
+{AdDir::Entry} is kind of a proxy that wraps most of the instance methods of
 `Net::LDAP::Entry` while most of the class methods deal with connecting
 to the ActiveDirectory, as well as searching and retrieving entries.
 
