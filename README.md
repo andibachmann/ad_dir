@@ -1,11 +1,11 @@
-# ad_dir - ActiveDirectory #
+# ad_dir ActiveDirectory
 
-# Description
+## Description
 
-`ad_dir` provides an easy interface to ActiveDirectory based on
+`ad_dir` provides a easy interface to ActiveDirectory based on
 the `net-ldap` gem.
 
-# Features
+## Features
 
 `ad_dir` allows to query and manage entries of the AD directory.
 Currently, it provides only a {AdDir::User} and a {AdDir::Group} model
@@ -15,9 +15,10 @@ based on the base class {AdDir::Entry}.
 `Net::LDAP::Entry` while most of the class methods deal with connecting
 to the ActiveDirectory, as well as searching and retrieving entries.
 
+
 The library tries to provide the same functionalities as given by `ActiveRecord`.
 
-# Examples
+## Examples
 
 ```
   require 'ad_dir'
@@ -35,11 +36,11 @@ The library tries to provide the same functionalities as given by `ActiveRecord`
 ```
 
 
-# Requirements
+## Requirements
 
  * 'net-ldap' >= '0.13'
 
-# Install
+## Install
 
     $ gem install ad_dir
 
