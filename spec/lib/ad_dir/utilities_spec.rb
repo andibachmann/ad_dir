@@ -4,7 +4,7 @@ require 'ad_dir'
 describe AdDir::Utilities do
   it '#to_datetime(0).getutc == \'1600-01-01 00:00:00 UTC\'' do
     expect(described_class.to_datetime('0').getutc)
-      .to eq(Time.utc(1600, 1, 1, 0, 0, 0))
+      .to eq(Time.utc(1601, 1, 1, 0, 0, 0))
   end
 
   it '#utc_to_localtime(\'20140912231209.0Z\') =>\

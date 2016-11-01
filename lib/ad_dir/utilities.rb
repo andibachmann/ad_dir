@@ -57,8 +57,14 @@ module AdDir
     # is used to return the time in 'localtime'. The local timezone is
     # 'guessed' from the underlying operating system (e.g. `locale`).
     #
+    # Microsofts 'epoch' date (1601-01-01 00:00:00) is 11_644_473_600 seconds
+    # before the Unix epoch date (1970-01-01 00:00:00):
+    #
+    #      Time.utc(1601, 1, 1, 0, 0, 0).to_f
+    #      #=> -11644473600.0
+    #
     def to_datetime(secs)
-      Time.at((secs.to_i / 10_000_000) - 11_676_096_000.0)
+      Time.at((secs.to_i / 10_000_000) - 11_644_473_600.0)
     end
 
     # The MS time string has the format "YYYYMMDDHHmmss.0Z" (e.g.
