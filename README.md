@@ -38,7 +38,7 @@ The library tries to provide the same functionalities as given by `ActiveRecord`
 
 ## Requirements
 
- * 'net-ldap' >= '0.13'
+ * 'net-ldap' >= '0.16'
 
 ## Install
 

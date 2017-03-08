@@ -27,5 +27,5 @@ behaves like ActiveRecord.)
   gem.add_development_dependency 'rubygems-tasks'
   gem.add_development_dependency('rubocop', '> 0.28')
 
-  gem.add_dependency 'net-ldap', '~> 0.13'
+  gem.add_dependency 'net-ldap', '~> 0.16'
 end
