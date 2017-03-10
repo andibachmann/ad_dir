@@ -1,6 +1,6 @@
---markup-provider=redcarpet
---markup=markdown
+--readme README.md
+--title 'AdDir Documentation'
+--charset utf-8
 -
-README.md
 lib/**/*.rb
 
