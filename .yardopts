@@ -1,6 +1,3 @@
 --readme README.md
---title 'AdDir Documentation'
---charset utf-8
--
-lib/**/*.rb
+--markup markdown
 
