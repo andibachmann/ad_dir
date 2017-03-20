@@ -21,7 +21,6 @@ behaves like ActiveRecord.)
   gem.add_development_dependency 'bundler'
   gem.add_development_dependency 'rake'
   gem.add_development_dependency 'yard'
-  gem.add_development_dependency 'redcarpet'
   gem.add_development_dependency 'wirble'
   gem.add_development_dependency 'rspec'
   gem.add_development_dependency 'rubygems-tasks'

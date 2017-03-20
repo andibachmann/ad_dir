@@ -1,4 +1,5 @@
-# ad_dir ActiveDirectory
+ad_dir ActiveDirectory
+======================
 
 ## Description
 
@@ -20,7 +21,7 @@ The library tries to provide the same functionalities as given by `ActiveRecord`
 
 ## Examples
 
-```
+```ruby
   require 'ad_dir'
   AdDir.establish_connection(
     host: 'my.nice.com',
@@ -42,5 +43,7 @@ The library tries to provide the same functionalities as given by `ActiveRecord`
 
 ## Install
 
-    $ gem install ad_dir
+``` bash
+$ gem install ad_dir
+```
 
