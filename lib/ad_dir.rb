@@ -42,7 +42,8 @@ module AdDir
     def establish_connection(host:, username:, password:, base:)
       @connection = Net::LDAP.new(
         host: host, base: base,
-        encryption: { method: :simple_tls },
+        encryption: { method: :simple_tls,
+                      verify_mode: OpenSSL::SSL:VERIFY_NONE },
         port: 636,
         auth: {
           username: username, password: password,
