@@ -43,7 +43,7 @@ module AdDir
       @connection = Net::LDAP.new(
         host: host, base: base,
         encryption: { method: :simple_tls,
-                      verify_mode: OpenSSL::SSL:VERIFY_NONE },
+                      verify_mode: OpenSSL::SSL::VERIFY_NONE },
         port: 636,
         auth: {
           username: username, password: password,
