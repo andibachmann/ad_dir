@@ -17,7 +17,8 @@ module AdDir
     # @return [String] the decoded ObjectGUID
     def objectguid_decoded
       @objectguid_decoded ||= Utilities.decode_guid(
-        @ldap_entry[:objectguid].first)
+        @ldap_entry[:objectguid].first
+      )
     end
 
     # Returns the binary **`ObjectSID`** attribute as regular [String]

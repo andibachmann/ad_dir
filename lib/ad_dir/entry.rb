@@ -1,5 +1,6 @@
 # encoding: utf-8
 #
+
 require 'date'
 require 'ad_dir/derived_attributes'
 
@@ -645,7 +646,7 @@ module AdDir
     #
     # Copied that from activerecord method
     #
-    # @see http://api.rubyonrails.org/classes/ActiveRecord/AttributeMethods.html#method-i-attribute_for_inspect ActiveRecord::AttributeMethods#attribute_for_inspect
+    # @see http://api.rubyonrails.org/classes/ActiveRecord/AttributeMethods.html#method-i-attribute_for_inspect
     def attribute_for_inspect(value)
       # if value.is_a?(String) && value.length > 50
       #   "#{value[0, 50]}...".inspect
