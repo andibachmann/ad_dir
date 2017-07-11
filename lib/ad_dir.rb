@@ -39,26 +39,32 @@ module AdDir
     #       password: 'opensesame'
     #       )
     #
-    def establish_connection(host:, username:, password:, base:)
+    def establish_connection(host:, username:, password:, base:, instrumentation_service: nil)
       @connection = Net::LDAP.new(
         host: host, base: base,
         encryption: { method: :simple_tls,
-                      verify_mode: OpenSSL::SSL::VERIFY_NONE },
+                      tls_options: {
+                        verify_mode: OpenSSL::SSL::SSLContext::DEFAULT_PARAMS }
+                    },
         port: 636,
         auth: {
           username: username, password: password,
-          method: :simple }
+          method: :simple },
       )
+      puts @connection.inspect
       @connection.bind
     end
 
     # Returns a Net::LDAP object (@see Net::LDAP ).
     # If no connection was established it raises a RuntimeError.
     def connection
-      return @connection if @connection
-      warn 'ERROR: Use \'AdDir#establish_connection\' first to connect \
+      if @connection
+        return @connection
+      else
+        warn 'ERROR: Use \'AdDir#establish_connection\' first to connect \
 to your Active Directory.'
-      fail 'No connection set up!'
+        fail 'No connection set up!'
+      end
     end
 
     # Get the status of the last operation.
