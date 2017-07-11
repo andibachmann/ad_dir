@@ -1,5 +1,6 @@
 require 'net/ldap'
 require 'ad_dir/version'
+require 'ad_dir/silencer'
 
 # AdDir alllows you to talk with an ActiveDirectory in a 'active_record'
 # like way.
@@ -39,19 +40,29 @@ module AdDir
     #       password: 'opensesame'
     #       )
     #
-    def establish_connection(host:, username:, password:, base:, instrumentation_service: nil)
+    def establish_connection(host:, username:,
+                             password:, base:,
+                             instrumentation_service: nil,
+                             verify_cert: false )
+      # 
+      enc_hsh = { method: :simple_tls }
+      if verify_cert
+        enc_hsh[:tls_options] = { verify_mode: OpenSSL::SSL::SSLContext::DEFAULT_PARAMS }
+      else
+        enc_hsh[:tls_options] = { verify_mode: OpenSSL::SSL::VERIFY_NONE }
+        instr_service = instrumentation_service || Silencer.new
+      end
+      #
       @connection = Net::LDAP.new(
         host: host, base: base,
-        encryption: { method: :simple_tls,
-                      tls_options: {
-                        verify_mode: OpenSSL::SSL::SSLContext::DEFAULT_PARAMS }
-                    },
+        encryption: enc_hsh,
         port: 636,
         auth: {
-          username: username, password: password,
+          username: username,
+          password: password,
           method: :simple },
+        instrumentation_service: instr_service,
       )
-      puts @connection.inspect
       @connection.bind
     end
 
