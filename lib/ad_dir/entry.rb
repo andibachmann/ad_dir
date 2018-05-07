@@ -366,10 +366,10 @@ module AdDir
     #
     # will search for entries having sn == 'Doe' && givenname == 'John'.
     #
-    #     AdDir::Entry.where(sn: '*oe', mail: '@geo.uzh.ch')
+    #     AdDir::Entry.where(sn: '*oe', mail: '@my.nice.com')
     #
     # will match all entries with sn ending with 'oe' and having a mail
-    # address in the `geo.uzh.ch` domain.
+    # address in the `my.nice.com` domain.
     #
     # @param opts [String|Hash]
     # @return [Array[Entry]] | []

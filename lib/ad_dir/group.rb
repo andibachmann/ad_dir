@@ -49,7 +49,7 @@ module AdDir
   # ```
   #
   class Group < AdDir::Entry
-    self.tree_base   = 'ou=groups,dc=d,dc=geo,dc=uzh,dc=ch'
+    self.tree_base   = 'ou=groups,dc=my,dc=company,dc=com'
     self.primary_key = :samaccountname
 
     # Used to efficiently filter Group entries in ActiveDirectory.
