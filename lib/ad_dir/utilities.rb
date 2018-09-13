@@ -107,8 +107,27 @@ module AdDir
     #
     # __Example:__
     #
-    #     (raw) objectsid: "\x01\x05\x00\x00\x00\x00\x00\x05\x15\x00\x00\x00\xFF\xA4\xE6\x00\xF8|\xDA3X2=\xF5Q\x04\x00\x00"
-    #     decoded        : "S-1-5-21-15115519-869956856-4114428504-1105"
+    #                 +-- Revision
+    #                 |   +-- Count of SubAuthorities
+    #                 |   |   +-- IdentifierAuthority [Hex, 6 Bytes, Bigendian]
+    #                 |   |   |                       +-- SubAuthority 1 [4 bytes]
+    #                 |   |   |                       |               +-- SubAuthority 1 [4 bytes]
+    #                 |   |   |                       |               |               +-- SubAuthority 2 [4 bytes]
+    #                 |   |   |                       |               |               |
+    #                 v   v   v                       v               v               v    
+    #              :  1   2   3   4   5   6   7   8   9   10  11  12  13  .   .   .   17..    
+    #     objectsid: "\x01\x05\x00\x00\x00\x00\x00\x05\x15\x00\x00\x00\xFF\xA4\xE6\x00\xF8|\xDA3X2=\xF5Q\x04\x00\x00"
+    #     decoded  : "S-1-5-21-15115519-869956856-4114428504-1105"
+    #                   ^ ^ ^  ^        ^         ^          ^
+    #                   | | |  |        |         |          |
+    #                   | | |  |        |         |          +-- SubAuthority N
+    #                   | | |  |        |         +-- SubAuthority 4
+    #                   | | |  |        +-- SubAuthority 3
+    #                   | | |  +-- SubAuthority 2
+    #                   | | +-- SubAuthority 1
+    #                   | +-- IdentifierAuthority
+    #                   +-- Revision
+    #
     def decode_sid(sid_str)
       sid_bin   = sid_str.bytes
       # 1st byte - Revision Level
@@ -125,6 +144,22 @@ module AdDir
       end
       ['S', revision, authority, subauths].flatten.join('-')
     end
+
+    # Decode a human readable SID string into a `:objectsid`
+    #
+    # @input: sid_str = "S-1-5-21-15115519-869956856-4114428504-1105"
+    # @return: "\x01\x05\x00\x00\x00\x00\x00\x05\x15\x00\x00\x00\xFF\xA4\xE6\x00\xF8|\xDA3X2=\xF5Q\x04\x00\x00"
+    # @see #decode_sid
+    def encode_sid(sid_str)
+        sida     = sid_str.split('-').map(&:to_i)
+        revision = [sida[1]].pack('C')         # 8bit unsigned
+        count    = [sida.size - 3].pack('C')   # 8bit unsigned
+        id_auth  = [sida[2]].pack('Q>')[2..-1] # 6 bytes Bigendian Hex
+        # all the rest is sub_auths
+        subauths = sida[3..-1].pack('l*')      # all the rest 4-bytes little endian integers
+        [revision, count, id_auth, subauths].flatten.join('')
+    end
+
     # rubocop:enable Metrics/LineLength
 
     # rubocop:disable Metrics/LineLength
