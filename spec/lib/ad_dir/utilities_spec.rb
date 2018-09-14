@@ -21,6 +21,14 @@ describe AdDir::Utilities do
     expect(described_class.decode_sid(objectsid)).to eq(decoded_sid)
   end
 
+  it '#encode_sid(sid_string) => \
+     "S-1-5-21-15115519-869956856-4114428504-1105"' do
+    sid_string  = "S-1-5-21-15115519-869956856-4114428504-1105"
+    encoded_sid = "\x01\x05\x00\x00\x00\x00\x00\x05\x15\x00\x00\x00\xFF\xA4\xE6\x00\xF8|\xDA3X2=\xF5Q\x04\x00\x00".force_encoding(Encoding::ASCII_8BIT)
+    expect(described_class.encode_sid(sid_string)).to eq(encoded_sid)
+    expect(described_class.decode_sid(described_class.encode_sid(sid_string))).to eq(sid_string)
+  end
+  
   it '#decode_guid(objectguid) => "738c16ee-f742-4b01-bbd7-58ac63d0e85c"' do
     objectguid_str = '738c16ee-f742-4b01-bbd7-58ac63d0e85c'
     objectguid     = "\xEE\u0016\x8CsB\xF7\u0001K\xBB\xD7X\xACc\xD0\xE8\\"
